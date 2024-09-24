@@ -99,7 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         attachments: updatedTask.attachments.map((att) => ({
           id: att.id,
           url: att.url,
-          taskId: att.taskId,
+          taskId: att.taskId, // Add taskId property
         })),
       };
 
