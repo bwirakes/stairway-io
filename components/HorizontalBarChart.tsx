@@ -10,7 +10,7 @@ interface BarChartProps {
 }
 
 const HorizontalBarChart: React.FC<BarChartProps> = ({ data, colors, title }) => {
-  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
+  const setHoveredItem = useState<number | null>(null)[1];
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   return (

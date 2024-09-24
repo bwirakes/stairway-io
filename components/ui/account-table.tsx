@@ -41,7 +41,7 @@ interface AccountTableProps {
 
 const AccountTable: React.FC<AccountTableProps> = ({ title, data }) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const [searchTerm, setSearchTerm] = useState('');
+  const searchTerm = useState('');
 
   const toggleRow = (id: number) => {
     const newExpandedRows = new Set(expandedRows);
