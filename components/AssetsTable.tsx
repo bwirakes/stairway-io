@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React from 'react'
 import {
   Table,
   TableBody,
@@ -16,8 +16,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { DotsVerticalIcon, ChevronUpIcon, ChevronDownIcon, DownloadIcon } from '@radix-ui/react-icons'
+import { DotsVerticalIcon } from '@radix-ui/react-icons'
+import { FiCreditCard, FiDollarSign, FiPieChart, FiTrendingUp, FiUser } from 'react-icons/fi'
 
 interface Asset {
   id: number
@@ -78,45 +78,6 @@ const assetsData: Asset[] = [
 ]
 
 const AssetsTable: React.FC = () => {
-  const [sortColumn, setSortColumn] = useState<keyof Asset>('accountName')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
-  const [searchTerm, setSearchTerm] = useState('')
-
-  const sortedAssets = useMemo(() => {
-    return [...assetsData].sort((a, b) => {
-      if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1
-      if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1
-      return 0
-    })
-  }, [sortColumn, sortDirection])
-
-  const filteredAssets = useMemo(() => {
-    return sortedAssets.filter(asset =>
-      Object.values(asset).some(value =>
-        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    )
-  }, [sortedAssets, searchTerm])
-
-  const handleSort = (column: keyof Asset) => {
-    if (column === sortColumn) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortColumn(column)
-      setSortDirection('asc')
-    }
-  }
-
-  const handleExport = () => {
-    // Implement export functionality here
-    console.log('Exporting assets...')
-  }
-
-  const renderSortIcon = (column: keyof Asset) => {
-    if (column !== sortColumn) return null
-    return sortDirection === 'asc' ? <ChevronUpIcon className="w-4 h-4 ml-1" /> : <ChevronDownIcon className="w-4 h-4 ml-1" />
-  }
-
   const getStatusColor = (status: Asset['accountStatus']) => {
     switch (status) {
       case 'Open':
@@ -130,94 +91,85 @@ const AssetsTable: React.FC = () => {
     }
   }
 
+  const getAccountIcon = (accountName: string) => {
+    if (accountName.includes('Checking') || accountName.includes('Savings')) {
+      return <FiDollarSign className="w-5 h-5 text-blue-500" />
+    } else if (accountName.includes('Investment')) {
+      return <FiTrendingUp className="w-5 h-5 text-green-500" />
+    } else if (accountName.includes('Retirement')) {
+      return <FiPieChart className="w-5 h-5 text-purple-500" />
+    } else if (accountName.includes('Credit Card')) {
+      return <FiCreditCard className="w-5 h-5 text-red-500" />
+    } else {
+      return <FiUser className="w-5 h-5 text-gray-500" />
+    }
+  }
+
   return (
-    <div className="overflow-hidden bg-white shadow-sm rounded-xl dark:bg-neutral-900">
+    <div className="bg-white shadow-sm rounded-xl dark:bg-neutral-900">
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
             <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Assets</h1>
             <p className="mt-2 text-sm text-gray-700 dark:text-gray-400">A list of all your financial assets including account details and current values.</p>
           </div>
-          <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-            <Button onClick={handleExport} className="inline-flex items-center">
-              <DownloadIcon className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-          </div>
         </div>
-        <div className="mt-4">
-          <Input
-            type="search"
-            placeholder="Search assets..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
-          />
-        </div>
-        <div className="mt-6 overflow-hidden border border-gray-200 dark:border-gray-700 sm:rounded-lg">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead onClick={() => handleSort('accountName')} className="cursor-pointer">
-                    Account Name {renderSortIcon('accountName')}
-                  </TableHead>
-                  <TableHead onClick={() => handleSort('accountNumber')} className="cursor-pointer">
-                    Account Number {renderSortIcon('accountNumber')}
-                  </TableHead>
-                  <TableHead onClick={() => handleSort('accountValue')} className="cursor-pointer">
-                    Account Value {renderSortIcon('accountValue')}
-                  </TableHead>
-                  <TableHead onClick={() => handleSort('accountStatus')} className="cursor-pointer">
-                    Status {renderSortIcon('accountStatus')}
-                  </TableHead>
-                  <TableHead onClick={() => handleSort('accountType')} className="hidden cursor-pointer md:table-cell">
-                    Type {renderSortIcon('accountType')}
-                  </TableHead>
-                  <TableHead onClick={() => handleSort('date')} className="hidden cursor-pointer md:table-cell">
-                    Date {renderSortIcon('date')}
-                  </TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAssets.map((asset) => (
-                  <TableRow key={asset.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800">
-                    <TableCell className="font-medium">{asset.accountName}</TableCell>
-                    <TableCell>{asset.accountNumber}</TableCell>
-                    <TableCell>{asset.accountValue}</TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(asset.accountStatus)}`}>
-                        {asset.accountStatus}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">{asset.accountType}</TableCell>
-                    <TableCell className="hidden md:table-cell">{asset.date}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="w-8 h-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <DotsVerticalIcon className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onSelect={() => console.log(`View ${asset.accountName}`)}>
-                            View details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => console.log(`Edit ${asset.accountName}`)}>
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => console.log(`Delete ${asset.accountName}`)}>
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+        <div className="flow-root mt-6">
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead>Account Name</TableHead>
+                    <TableHead>Account Number</TableHead>
+                    <TableHead>Account Value</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="hidden md:table-cell">Type</TableHead>
+                    <TableHead className="hidden md:table-cell">Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {assetsData.map((asset) => (
+                    <TableRow key={asset.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800">
+                      <TableCell>{getAccountIcon(asset.accountName)}</TableCell>
+                      <TableCell className="font-medium">{asset.accountName}</TableCell>
+                      <TableCell>{asset.accountNumber}</TableCell>
+                      <TableCell>{asset.accountValue}</TableCell>
+                      <TableCell>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(asset.accountStatus)}`}>
+                          {asset.accountStatus}
+                        </span>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{asset.accountType}</TableCell>
+                      <TableCell className="hidden md:table-cell">{asset.date}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="w-8 h-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <DotsVerticalIcon className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={() => console.log(`View ${asset.accountName}`)}>
+                              View details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => console.log(`Edit ${asset.accountName}`)}>
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => console.log(`Delete ${asset.accountName}`)}>
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
       </div>

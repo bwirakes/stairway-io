@@ -1,11 +1,17 @@
-// app/(dashboard)/estate-inventory/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import AccountTable from '@/components/ui/account-table';
-import ProgressBarComponent from '@/components/ui/progress-bar';
-import PieChart from '@/components/ui/PieChart';
+import HorizontalBarChart from '@/components/HorizontalBarChart';
+import { DotsVerticalIcon } from '@radix-ui/react-icons';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   FiDollarSign,
   FiHome,
@@ -13,47 +19,97 @@ import {
 } from 'react-icons/fi';
 
 export default function EstateInventoryPage() {
-  // State for progress percentage (dummy value)
-  const [progressPercentage] = useState(70);
-
   return (
     <div className="w-full min-h-screen bg-gray-100">
-      {/* Header */}
-
-      {/* Main Content */}
       <main className="flex flex-col items-start w-full px-6 py-6 space-y-6">
         {/* Three Summary Boxes */}
         <div className="grid w-full grid-cols-1 gap-6 max-w-7xl sm:grid-cols-3">
           <Card className="p-6 text-left bg-white shadow-md">
-            <h3 className="text-lg font-semibold">Estate Assets</h3>
-            <p className="text-2xl font-bold text-green-600">$500,000</p>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold">Estate Assets</h3>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <DotsVerticalIcon className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onSelect={() => console.log('Go to Assets')}>
+                    Go to Assets
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <p className="text-2xl font-bold text-transparent bg-gradient-to-r from-green-400 to-green-600 bg-clip-text">$500,000</p>
           </Card>
           <Card className="p-6 text-left bg-white shadow-md">
-            <h3 className="text-lg font-semibold">Estate Liabilities</h3>
-            <p className="text-2xl font-bold text-red-600">$150,000</p>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold">Estate Liabilities</h3>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <DotsVerticalIcon className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onSelect={() => console.log('Go to Liabilities')}>
+                    Go to Liabilities
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <p className="text-2xl font-bold text-transparent bg-gradient-to-r from-red-400 to-red-600 bg-clip-text">$150,000</p>
           </Card>
           <Card className="p-6 text-left bg-white shadow-md">
-            <h3 className="text-lg font-semibold">Estimated Taxes</h3>
-            <p className="text-2xl font-bold text-yellow-600">$50,000</p>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold">Estimated Taxes</h3>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <DotsVerticalIcon className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onSelect={() => console.log('Go to Taxes')}>
+                    Go to Taxes
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <p className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text">$50,000</p>
           </Card>
         </div>
 
         {/* Charts Section */}
         <div className="grid w-full grid-cols-1 gap-6 max-w-7xl sm:grid-cols-2">
-          {/* Estate Distribution Pie Chart */}
+          {/* Asset Composition Chart */}
           <Card className="p-6 bg-white shadow-md">
-            <h3 className="mb-4 text-lg font-semibold text-center">
-              Estate Distribution
+            <h3 className="mb-4 text-lg font-semibold text-right">
+              Asset Composition
             </h3>
-            <div className="flex justify-center">
-             <PieChart />
-            </div>
+            <HorizontalBarChart
+              data={[
+                { name: 'Real Estate', value: 250000 },
+                { name: 'Investments', value: 150000 },
+                { name: 'Cash', value: 100000 },
+              ]}
+              colors={['#4CAF50', '#2196F3', '#FFC107']}
+            />
           </Card>
 
-          {/* Progress Bar */}
+          {/* Liability Composition Chart */}
           <Card className="p-6 bg-white shadow-md">
-            <ProgressBarComponent title="Estate Management Progress" percentage={progressPercentage} />
-            {/* Optional: Button to simulate progress */}
+            <h3 className="mb-4 text-lg font-semibold text-right">
+              Liability Composition
+            </h3>
+            <HorizontalBarChart
+              data={[
+                { name: 'Mortgage', value: 100000 },
+                { name: 'Credit Card', value: 30000 },
+                { name: 'Personal Loans', value: 20000 },
+              ]}
+              colors={['#F44336', '#9C27B0', '#FF9800']}
+            />
           </Card>
         </div>
 

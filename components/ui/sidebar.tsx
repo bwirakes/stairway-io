@@ -35,7 +35,9 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
     >
       {/* Header Section */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-blue-600">Stairway.io</h1>
+        <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text">
+          Stairway.io
+        </h1>
         <button onClick={onClose} className="text-gray-500 md:hidden hover:text-gray-600">
           <FiX className="w-6 h-6" />
           <span className="sr-only">Close sidebar</span>
