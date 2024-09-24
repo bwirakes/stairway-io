@@ -1,4 +1,3 @@
-// components/ui/DataTable.tsx
 'use client';
 
 import React from 'react';
@@ -18,8 +17,18 @@ import {
 } from './table'; // Ensure you have shadcn/ui Table components
 import { ChevronDownIcon } from 'lucide-react';
 
+// Define a custom meta type for your columns
+type CustomColumnMeta = {
+  align?: 'left' | 'center' | 'right';
+};
+
+// Extend the ColumnDef type with your custom meta
+type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
+  meta?: CustomColumnMeta;
+};
+
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+  columns: CustomColumnDef<TData, TValue>[];
   data: TData[];
 }
 
@@ -40,14 +49,13 @@ export function DataTable<TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
-                const align = header.column.columnDef.meta?.align || 'left';
+                const align = (header.column.columnDef as CustomColumnDef<TData, TValue>).meta?.align || 'left';
                 return (
                   <TableHead key={header.id} className={`text-${align}`}>
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext()
                     )}
-                    {/* Optional: Add sorting indicators */}
                     {header.column.getCanSort() && (
                       <span>
                         {header.column.getIsSorted() === 'asc' ? (
@@ -68,7 +76,7 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} className="hover:bg-gray-50">
                 {row.getVisibleCells().map((cell) => {
-                  const align = cell.column.columnDef.meta?.align || 'left';
+                  const align = (cell.column.columnDef as CustomColumnDef<TData, TValue>).meta?.align || 'left';
                   return (
                     <TableCell key={cell.id} className={`text-${align}`}>
                       {flexRender(
