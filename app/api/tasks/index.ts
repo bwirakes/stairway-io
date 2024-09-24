@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient, Status as PrismaStatus, Priority as PrismaPriority } from '@prisma/client';
+import { PrismaClient, Status as PrismaStatus, Priority as PrismaPriority, Project as PrismaProject } from '@prisma/client';
 import { Task } from '../../../types';
 
 const prisma = new PrismaClient();
@@ -25,6 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         deadline: task.deadline.toISOString(),
         status: task.status, // PrismaStatus
         priority: task.priority, // PrismaPriority
+        project: task.project, // PrismaProject
         owner: task.owner,
         notes: task.notes || '',
         categories: task.categories.map((cat) => ({
@@ -45,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else if (req.method === 'POST') {
     try {
-      const { title, deadline, status, priority, owner, notes, categories } = req.body;
+      const { title, deadline, status, priority, project, owner, notes, categories } = req.body;
 
       // Validate required fields
       if (!title || !deadline || !owner) {
@@ -58,6 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           deadline: new Date(deadline),
           status: status || PrismaStatus.BEGIN,
           priority: priority || PrismaPriority.MEDIUM,
+          project: project || PrismaProject.REAL_ESTATE,
           owner,
           notes,
           categories: {
@@ -81,6 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         deadline: task.deadline.toISOString(),
         status: task.status, // PrismaStatus
         priority: task.priority, // PrismaPriority
+        project : task.project, // PrismaProject
         owner: task.owner,
         notes: task.notes || '',
         categories: task.categories.map((cat) => ({
