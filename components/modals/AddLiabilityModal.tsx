@@ -24,8 +24,8 @@ const AddLiabilityModal: React.FC<AddLiabilityModalProps> = ({ onClose }) => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: any) => {
-    console.log('Form Data:', data);
+  const onSubmit = () => {
+    console.log('Form Data:');
     // Implement form submission logic here (e.g., API call)
     onClose();
   };

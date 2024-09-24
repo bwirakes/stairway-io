@@ -1,4 +1,4 @@
-import { Check, Plus } from 'lucide-react'
+import { Check } from 'lucide-react'
 
 export function ProfileSetup() {
   const tasks = [

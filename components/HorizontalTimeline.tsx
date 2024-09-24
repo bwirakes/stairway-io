@@ -12,7 +12,7 @@ export function HorizontalTimeline() {
         <div className="relative min-w-max">
           <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200"></div>
           <div className="relative flex justify-between space-x-4 sm:space-x-8">
-            {events.map((event, index) => (
+            {events.map((event) => (
               <div key={event.id} className="flex flex-col items-center w-24 sm:w-32">
                 <div className="z-10 w-4 h-4 bg-blue-600 rounded-full sm:w-5 sm:h-5"></div>
                 <div className="mt-2 text-center">

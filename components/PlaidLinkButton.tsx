@@ -1,4 +1,6 @@
 // components/PlaidLinkButton.tsx
+//23:28  Error: 'metadata' is defined but never used.  @typescript-eslint/no-unused-vars
+//23:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 import React, { useCallback, useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 
@@ -20,7 +22,7 @@ const PlaidLinkButton: React.FC<PlaidLinkButtonProps> = ({ onSuccess }) => {
   }, []);
 
   const onSuccessCallback = useCallback(
-    (public_token: string, metadata: any) => {
+    (public_token: string) => {
       onSuccess(public_token);
     },
     [onSuccess]

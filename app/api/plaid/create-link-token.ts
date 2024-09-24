@@ -49,13 +49,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     res.status(200).json(response.data);
-  } catch (error: any) {
-    if (error.response) {
-      console.error('Plaid API Error:', JSON.stringify(error.response.data, null, 2));
-      res.status(500).json({ error: error.response.data });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if ('response' in error && error.response) {
+        console.error('Plaid API Error:', JSON.stringify(error.response, null, 2));
+        res.status(500).json({ error: error.response });
+      } else {
+        console.error('Error creating link token:', error.message);
+        res.status(500).json({ error: 'Unable to create link token' });
+      }
     } else {
-      console.error('Error creating link token:', error.message);
-      res.status(500).json({ error: 'Unable to create link token' });
+      console.error('Unknown error:', error);
+      res.status(500).json({ error: 'An unknown error occurred' });
     }
   }
 }

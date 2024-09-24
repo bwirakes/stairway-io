@@ -80,7 +80,7 @@ const TasksPage: React.FC = () => {
 
         <div className="mb-8">
           <h2 className="mb-4 text-2xl font-semibold">Upcoming Tasks</h2>
-          <HorizontalTimeline tasks={upcomingTasks} />
+          <HorizontalTimeline/>
         </div>
 
         <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">

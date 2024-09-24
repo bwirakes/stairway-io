@@ -38,7 +38,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
       });
 
       if (res.ok) {
-        const updatedTask: Task = await res.json();
+        //const updatedTask: Task = await res.json();
         // Update local state
         setIsCompleting(false);
         // Optionally, update the parent component or use a state management library

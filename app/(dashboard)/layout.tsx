@@ -5,7 +5,9 @@ import Sidebar from '@/components/ui/sidebar';
 import Header from '@/components/ui/header';
 import Notifications from '@/components/ui/notifications';
 
-export default function Layout({ children }) {
+import { ReactNode } from 'react';
+
+export default function Layout({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Header from '@/components/ui/header';
 import TotalLiabilitiesCard from '@/components/TotalLiabilitiesCard';
 import AddLiabilityButton from '@/components/AddLiabilityButton';
 import LiabilitiesTable from '@/components/LiabilitiesTable';

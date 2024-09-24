@@ -1,4 +1,5 @@
 // app/api/tasks/route.ts
+//9:27  Error: 'request' is defined but never used.  @typescript-eslint/no-unused-vars
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, Status, Priority } from '@prisma/client';
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest) {
       deadline: task.deadline.toISOString(),
       status: task.status,
       priority: task.priority,
+      project: task.project, // Add the 'project' property
       owner: task.owner,
       notes: task.notes || '',
       categories: task.categories.map((cat) => ({
@@ -83,6 +85,7 @@ export async function POST(request: NextRequest) {
       deadline: task.deadline.toISOString(),
       status: task.status,
       priority: task.priority,
+      project : task.project,
       owner: task.owner,
       notes: task.notes || '',
       categories: task.categories.map((cat) => ({

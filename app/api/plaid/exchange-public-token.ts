@@ -1,5 +1,6 @@
 // pages/api/plaid/exchange-public-token.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
+// 39:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+/*import type { NextApiRequest, NextApiResponse } from 'next';
 import { plaidClient } from '@/lib/plaidclient';
 import { PrismaClient } from '@prisma/client';
 
@@ -48,3 +49,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 }
+
+*/

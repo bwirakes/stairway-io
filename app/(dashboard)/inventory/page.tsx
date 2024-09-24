@@ -3,7 +3,6 @@
 
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import AccountTable from '@/components/ui/account-table';
 import ProgressBarComponent from '@/components/ui/progress-bar';
 import PieChart from '@/components/ui/PieChart';
@@ -15,7 +14,7 @@ import {
 
 export default function EstateInventoryPage() {
   // State for progress percentage (dummy value)
-  const [progressPercentage, setProgressPercentage] = useState(70);
+  const [progressPercentage] = useState(70);
 
   return (
     <div className="w-full min-h-screen bg-gray-100">

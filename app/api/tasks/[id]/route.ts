@@ -1,7 +1,7 @@
 // app/api/tasks/[id]/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, Status, Priority } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { Task } from '@/types';
 
 const prisma = new PrismaClient();
@@ -26,6 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         deadline: task.deadline.toISOString(),
         status: task.status,
         priority: task.priority,
+        project: task.project,
         owner: task.owner,
         notes: task.notes || '',
         categories: task.categories.map((cat) => ({
@@ -87,6 +88,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       deadline: updatedTask.deadline.toISOString(),
       status: updatedTask.status,
       priority: updatedTask.priority,
+      project: updatedTask.project,
       owner: updatedTask.owner,
       notes: updatedTask.notes || '',
       categories: updatedTask.categories.map((cat) => ({
