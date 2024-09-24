@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import {  MixerHorizontalIcon } from '@radix-ui/react-icons';
+import { MixerHorizontalIcon } from '@radix-ui/react-icons';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,22 +41,27 @@ interface AccountTableProps {
 
 const AccountTable: React.FC<AccountTableProps> = ({ title, data }) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const searchTerm = useState('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const toggleRow = (id: number) => {
-    const newExpandedRows = new Set(expandedRows);
-    if (newExpandedRows.has(id)) {
-      newExpandedRows.delete(id);
-    } else {
-      newExpandedRows.add(id);
-    }
-    setExpandedRows(newExpandedRows);
+    setExpandedRows(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
-  const filteredData = data.filter(account =>
-    account.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    account.children.some(child => child.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredData = React.useMemo(() => {
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    return data.filter(account =>
+      account.type.toLowerCase().includes(lowercasedSearchTerm) ||
+      account.children.some(child => child.name.toLowerCase().includes(lowercasedSearchTerm))
+    );
+  }, [data, searchTerm]);
 
   return (
     <div className="overflow-hidden bg-white shadow-sm rounded-xl dark:bg-neutral-900">
@@ -65,6 +70,15 @@ const AccountTable: React.FC<AccountTableProps> = ({ title, data }) => {
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
             <p className="mt-2 text-sm text-gray-700 dark:text-gray-400">A list of all your {title.toLowerCase()} including account details and values.</p>
+          </div>
+          <div className="mt-4 sm:mt-0">
+            <input
+              type="text"
+              placeholder="Search accounts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-2 border rounded-md dark:bg-neutral-800 dark:border-neutral-700"
+            />
           </div>
         </div>
 
