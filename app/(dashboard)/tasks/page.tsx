@@ -28,9 +28,10 @@ const TasksPage: React.FC = () => {
         const data: Task[] = await res.json();
         setTaskList(data);
         setIsLoading(false);
-      } catch (err: any) {
-        console.error('Failed to fetch tasks:', err);
-        setError(err.message || 'Failed to fetch tasks');
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tasks';
+        console.error('Failed to fetch tasks:', errorMessage);
+        setError(errorMessage);
         setIsLoading(false);
       }
     };
@@ -66,15 +67,12 @@ const TasksPage: React.FC = () => {
     return <div className="mt-10 text-center text-red-500">Error: {error}</div>;
   }
 
-  const upcomingTasks = getUpcomingTasks(taskList, 10);
-
   return (
     <div className="w-full min-h-screen bg-gray-100">
       <div className="mx-auto max-w-7xl">
         <EstateProgress />
 
         <div className="flex items-center justify-between mb-6">
-          
           <AddTaskButton onClick={handleAddTask} />
         </div>
 

@@ -10,8 +10,6 @@ import CloseAccountModal from '@/components/modals/CloseAccountModal'
 import { Transaction } from '@/types/transaction'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 
-
-
 const accounts = ['Citibank Checking', 'Savings Account', 'Credit Card']
 
 const accountBalances: { [key: string]: number } = {
@@ -144,8 +142,8 @@ const initialTransactions: Transaction[] = [
 ];
 
 export default function RecurringTransactionsPage() {
+  const [transactions] = useState(initialTransactions);
   const [selectedAccount, setSelectedAccount] = useState(accounts[0])
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [isCloseAccountModalOpen, setIsCloseAccountModalOpen] = useState(false)
@@ -239,4 +237,4 @@ export default function RecurringTransactionsPage() {
       )}
     </div>
   )
-};
+}
