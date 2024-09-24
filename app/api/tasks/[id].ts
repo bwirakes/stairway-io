@@ -31,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           deadline: task.deadline.toISOString(),
           status: task.status,
           priority: task.priority,
+          project: task.project,
           owner: task.owner,
           notes: task.notes || '',
           categories: task.categories.map((cat) => ({
@@ -53,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else if (req.method === 'PUT') {
     try {
-      const { title, deadline, status, priority, owner, notes, categories } = req.body;
+      const { title, deadline, status, priority, project, owner, notes, categories } = req.body;
 
       const updatedTask = await prisma.task.update({
         where: { id },
@@ -62,6 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           deadline: deadline ? new Date(deadline) : undefined,
           status: status ?? undefined,
           priority: priority ?? undefined,
+          project: project ?? undefined,
           owner: owner ?? undefined,
           notes: notes ?? undefined,
           categories: {
@@ -87,6 +89,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         deadline: updatedTask.deadline.toISOString(),
         status: updatedTask.status,
         priority: updatedTask.priority,
+        project: updatedTask.project,
         owner: updatedTask.owner,
         notes: updatedTask.notes || '',
         categories: updatedTask.categories.map((cat) => ({
