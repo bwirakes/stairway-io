@@ -56,6 +56,97 @@ model Task {
   attachments  Attachment[]
 }
 
+model AssetInformation {
+  id                    Int       @id @default(autoincrement())
+  asset_name            String
+  account_id            String?
+  account_number        String?
+  financial_institution String?
+  account_owner         String?
+  current_value         Float
+  attachments           String[]
+  notes                 String?
+  asset_category        AssetCategory
+  distribution          Distribution? @relation(fields: [distribution_id], references: [id])
+  distribution_id       Int?
+  is_probate            Boolean   @default(false)
+  sold                  Boolean   @default(false)
+  cost_basis            Float?
+  task_id               Int?
+  asset_location        String?
+  user_id               Int
+  asset_contact_number  String?
+  asset_contact_name    String?
+  asset_contact_email   String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  account_status        AccountStatus @default(OPEN)
+  account_plan          AccountPlan
+}
+
+model EstateInformation {
+  id                        Int      @id @default(autoincrement())
+  first_name                String
+  middle_initial            String?
+  last_name                 String
+  ssn                       String
+  estate_ein                String?
+  probate_case_num          String?
+  residence_phone           String?
+  mobile_phone              String?
+  email                     String?
+  suffix                    String?
+  legal_res_street_address_1 String
+  legal_res_street_address_2 String?
+  legal_res_city            String
+  legal_res_state           String
+  legal_res_zipcode         String
+  will                      String?
+  funeral_wishes            String?
+  death_certificate         String?
+  date_of_birth             DateTime
+  date_of_death             DateTime?
+  death_city                String?
+  death_state               String?
+  death_country             String?
+  birth_city                String
+  birth_state               String
+  birth_country             String
+  created_at                DateTime @default(now())
+  updated_at                DateTime @updatedAt
+}
+
+model Distribution {
+  id                    Int       @id @default(autoincrement())
+  distribution_share_id Int?
+  heir                  Heir      @relation(fields: [heir_id], references: [id])
+  heir_id               Int
+  account               String?
+  share_of_distribution Float
+  distribution_type     String
+  assets                AssetInformation[]
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+}
+
+model Heir {
+  id                Int       @id @default(autoincrement())
+  first_name        String
+  middle_initial    String?
+  last_name         String
+  ssn               String
+  suffix            String?
+  street_address_1  String
+  street_address_2  String?
+  city              String
+  state             String
+  zipcode           String
+  target_percentage Float
+  relation          String
+  distributions     Distribution[]
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+}
 
 model Category {
   id    String  @id @default(cuid())
@@ -87,4 +178,41 @@ enum Project {
   LEGAL
   FINANCES
   DISTRIBUTIONS
+}
+
+enum AssetCategory {
+  ANNUITY_NON_QUALIFIED
+  ANNUITY_QUALIFIED
+  BONDS
+  BROKERAGE_ACCOUNT
+  BUSINESS
+  CASH
+  COLLECTIBLE
+  CRYPTOCURRENCY
+  DEPOSIT_ACCOUNT
+  ESTATE_ACCOUNT
+  JEWELRY
+  LIFE_INSURANCE
+  LOAN
+  OTHER
+  PRECIOUS_METAL
+  REAL_ESTATE
+  REFUND
+  RETIREMENT
+  STOCKS
+  TRUST
+  VEHICLE
+}
+
+enum AccountStatus {
+  OPEN
+  CLOSED
+  TRANSFERRED
+}
+
+enum AccountPlan {
+  INDIVIDUAL
+  JOINT
+  PAYABLE_ON_DEATH
+  TRANSFERRED
 }

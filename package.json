@@ -10,8 +10,9 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
     "@next/font": "^14.2.13",
-    "@prisma/client": "^5.19.1",
+    "@prisma/client": "^5.20.0",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.1",
@@ -25,6 +26,7 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.1",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tanstack/react-table": "^8.20.5",
     "chart.js": "^4.4.4",
@@ -47,7 +49,8 @@
     "react-plaid-link": "^3.6.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "vaul": "^0.9.4"
+    "vaul": "^0.9.4",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/jest": "^29.5.13",
@@ -60,7 +63,7 @@
     "jest": "^29.7.0",
     "node-mocks-http": "^1.16.0",
     "postcss": "^8.4.47",
-    "prisma": "^5.19.1",
+    "prisma": "^5.20.0",
     "tailwindcss": "^3.4.12",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
