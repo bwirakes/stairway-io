@@ -68,7 +68,7 @@ export default function AIResponseBox({ response }: AIResponseBoxProps) {
               Your request to auto-close the account has been initiated.
             </p>
             <Button
-              variant="success"
+              variant="default"
               size="sm"
               className="mt-1"
               onClick={handleConfirmAutoClose}

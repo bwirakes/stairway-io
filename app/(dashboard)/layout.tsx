@@ -15,9 +15,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     setIsSidebarOpen((prev) => !prev);
   };
 
-  const toggleNotifications = () => {
-    setIsNotificationsOpen((prev) => !prev);
-  };
+
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
@@ -27,7 +25,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 w-full">
         {/* Header */}
-        <Header onMenuToggle={toggleSidebar} onNotificationsToggle={toggleNotifications} />
+        <Header onMenuToggle={toggleSidebar} />
 
         {/* Page Content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">

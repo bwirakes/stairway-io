@@ -144,7 +144,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           {/* Action Buttons */}
           <div className="flex mt-4 space-x-2">
             <Button
-              variant="success"
+              variant="default"
               onClick={handleCompleteWithAI}
               disabled={isCompleting}
               className={`flex items-center ${
@@ -161,14 +161,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               <FiUpload className="mr-1" /> Add Attachment
             </Button>
             <Button
-              variant="warning"
+              variant="destructive"
               onClick={() => {/* Implement Edit functionality */}}
               className="flex items-center"
             >
               <FiEdit className="mr-1" /> Edit
             </Button>
             <Button
-              variant="danger"
+              variant="destructive"
               onClick={() => {/* Implement Delete functionality */}}
               className="flex items-center"
             >

@@ -2,9 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { plaidClient } from '@/lib/plaidclient';
 import { Products, CountryCode } from 'plaid';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma  from '@/lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Only allow POST requests

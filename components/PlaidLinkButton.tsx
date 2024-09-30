@@ -1,6 +1,3 @@
-// components/PlaidLinkButton.tsx
-//23:28  Error: 'metadata' is defined but never used.  @typescript-eslint/no-unused-vars
-//23:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 import React, { useCallback, useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 
@@ -11,7 +8,6 @@ interface PlaidLinkButtonProps {
 const PlaidLinkButton: React.FC<PlaidLinkButtonProps> = ({ onSuccess }) => {
   const [linkToken, setLinkToken] = useState<string | null>(null);
 
-  // Fetch the link token from the server
   useEffect(() => {
     const createLinkToken = async () => {
       const response = await fetch('/api/plaid/create-link-token', { method: 'POST' });

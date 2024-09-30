@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { FiSettings, FiLogOut } from 'react-icons/fi';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,11 +14,7 @@ export default function UserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
       >
-        <img
-          className="w-8 h-8 rounded-full"
-          src="/placeholder.svg?height=32&width=32"
-          alt="User avatar"
-        />
+        <Image src="/path/to/profile.jpg" alt="User Profile" width={50} height={50} />
         <span className="sr-only">Open user menu</span>
       </button>
 

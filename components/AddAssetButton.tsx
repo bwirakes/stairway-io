@@ -12,6 +12,9 @@ const AddAssetButton: React.FC = () => {
   const [isPlaidOpen, setIsPlaidOpen] = useState(false);
   const [isFileUploadOpen, setIsFileUploadOpen] = useState(false);
 
+  // Dummy userId
+  const dummyUserId = 1;
+
   return (
     <>
       <DropdownMenu>
@@ -36,7 +39,7 @@ const AddAssetButton: React.FC = () => {
       </DropdownMenu>
 
       {/* Modals */}
-      {isAddAssetOpen && <AddAssetModal onClose={() => setIsAddAssetOpen(false)} />}
+      {isAddAssetOpen && <AddAssetModal onClose={() => setIsAddAssetOpen(false)} userId={dummyUserId} />}
       {isPlaidOpen && <PlaidIntegrationModal onClose={() => setIsPlaidOpen(false)} />}
       {isFileUploadOpen && <FileUploadModal onClose={() => setIsFileUploadOpen(false)} />}
     </>

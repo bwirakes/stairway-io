@@ -2,9 +2,7 @@
 // 39:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
 /*import type { NextApiRequest, NextApiResponse } from 'next';
 import { plaidClient } from '@/lib/plaidclient';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Only allow POST requests
