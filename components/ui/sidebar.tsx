@@ -1,23 +1,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
-import {
-  FiChevronDown,
-  FiChevronRight,
-  FiDollarSign,
-  FiCheckSquare,
-  FiMessageCircle,
-  FiX,
-  FiRepeat,
-  FiArchive,
-  FiInbox,
-  FiHome,
-  FiSettings,
-  FiCreditCard,
-  FiUser,
-  FiUsers,
-  FiLogOut,
-  FiPlusCircle,
-} from 'react-icons/fi'
+import * as Icons from '@radix-ui/react-icons'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,12 +16,10 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [isAssetsOpen, setIsAssetsOpen] = useState(false)
 
   const menuItems = [
-    { name: 'Home', href: '/home', icon: FiHome },
-    { name: 'Recurring Transactions', href: '/recurring-transactions', icon: FiRepeat },
-    { name: 'Estate Account', href: '/estate-account', icon: FiArchive },
-    { name: 'Tasks', href: '/tasks', icon: FiCheckSquare },
-    { name: 'AI Assistant', href: '/ai-assistant', icon: FiMessageCircle },
-    { name: 'Inbox', href: '/inbox', icon: FiInbox },
+    { name: 'Recurring Transactions', href: '/recurring-transactions', icon: Icons.UpdateIcon },
+    { name: 'Estate Account', href: '/estate-account', icon: Icons.ArchiveIcon },
+    { name: 'Tasks', href: '/tasks', icon: Icons.CheckboxIcon },
+    { name: 'AI Assistant', href: '/ai-assistant', icon: Icons.ChatBubbleIcon },
   ]
 
   const handleItemClick = () => {
@@ -61,7 +42,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
             Stairway.io
           </h1>
           <button onClick={onClose} className="text-gray-500 md:hidden hover:text-gray-600">
-            <FiX className="w-6 h-6" />
+            <Icons.Cross2Icon className="w-6 h-6" />
             <span className="sr-only">Close sidebar</span>
           </button>
         </div>
@@ -69,15 +50,27 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
         <nav className="flex-grow">
           <ul className="space-y-2">
             <li>
+              <Link
+                href="/home"
+                className="flex items-center w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
+                onClick={handleItemClick}
+              >
+                <Icons.HomeIcon className="w-5 h-5 mr-2" />
+                Home
+              </Link>
+            </li>
+            <li>
               <button
                 onClick={() => setIsAssetsOpen(!isAssetsOpen)}
                 className="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
               >
                 <span className="flex items-center">
-                  <FiDollarSign className="w-5 h-5 mr-2" />
-                  <span>Assets + Liabilities</span>
+                  <Icons.StackIcon className="w-5 h-5 mr-2" />
+                  <Link href="/inventory" className="hover:underline">
+                    Assets + Liabilities
+                  </Link>
                 </span>
-                {isAssetsOpen ? <FiChevronDown className="w-5 h-5" /> : <FiChevronRight className="w-5 h-5" />}
+                {isAssetsOpen ? <Icons.ChevronDownIcon className="w-5 h-5" /> : <Icons.ChevronRightIcon className="w-5 h-5" />}
               </button>
               {isAssetsOpen && (
                 <ul className="pl-6 mt-2 space-y-2">
@@ -94,7 +87,6 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
                 </ul>
               )}
             </li>
-
             {menuItems.map((item) => (
               <li key={item.name}>
                 <Link
@@ -115,27 +107,23 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="w-full justify-start px-2 py-1.5">
                 <Avatar className="w-8 h-8 mr-2">
-                  <AvatarImage src="/placeholder-user.jpg" alt="James Collison" />
-                  <AvatarFallback>JC</AvatarFallback>
+                  <AvatarImage src="/placeholder-user.jpg" alt="John Doe" />
+                  <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start">
-                  <span className="text-sm font-semibold">James Collison</span>
-                  <span className="text-xs text-gray-500">Preline@HS</span>
+                  <span className="text-sm font-semibold">John Doe</span>
+                  <span className="text-xs text-gray-500">Executor</span>
                 </div>
-                <FiChevronDown className="w-4 h-4 ml-auto" />
+                <Icons.ChevronDownIcon className="w-4 h-4 ml-auto" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuItem>
-                <FiCreditCard className="mr-2 h-4 w-4" />
-                <span>Billing</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FiSettings className="mr-2 h-4 w-4" />
+                <Icons.GearIcon className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <FiUser className="mr-2 h-4 w-4" />
+                <Icons.PersonIcon className="mr-2 h-4 w-4" />
                 <span>My account</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -148,17 +136,17 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
                 <span className="ml-auto text-xs font-semibold text-blue-500">New</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <FiUsers className="mr-2 h-4 w-4" />
+                <Icons.GroupIcon className="mr-2 h-4 w-4" />
                 <span>Manage team</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <FiLogOut className="mr-2 h-4 w-4" />
+                <Icons.ExitIcon className="mr-2 h-4 w-4" />
                 <span>Sign out</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <FiPlusCircle className="mr-2 h-4 w-4" />
+                <Icons.PlusCircledIcon className="mr-2 h-4 w-4" />
                 <span>Add team account</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -14,7 +14,7 @@ export function EstateProgress() {
         <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
           <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
         </div>
-        <p className="text-xs text-gray-600 sm:text-sm">Estate planning is {progress}% complete</p>
+        <p className="text-xs text-gray-600 sm:text-sm">Estate Closing is {progress}% complete</p>
       </div>
     )
   }

@@ -1,6 +1,10 @@
 import React from 'react'
 
-const TotalAssetsCard: React.FC = () => {
+interface TotalAssetsCardProps {
+  totalAssets: number
+}
+
+const TotalAssetsCard: React.FC<TotalAssetsCardProps> = ({ totalAssets }) => {
   return (
     <div className="p-6 shadow-sm bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
       <div className="flex items-center">
@@ -11,7 +15,7 @@ const TotalAssetsCard: React.FC = () => {
         </div>
         <div className="ml-5">
           <p className="text-sm font-medium text-white text-opacity-70">Total Assets</p>
-          <p className="text-2xl font-bold text-white">$1,234,567</p>
+          <p className="text-2xl font-bold text-white">${totalAssets.toLocaleString()}</p>
         </div>
       </div>
     </div>

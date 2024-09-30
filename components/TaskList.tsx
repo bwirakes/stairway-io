@@ -2,10 +2,10 @@ import { Clock, CheckCircle } from 'lucide-react'
 
 export function TaskList() {
   const tasks = [
-    { id: 1, title: 'Review will draft', status: 'In Progress', dueDate: '2024-10-01' },
-    { id: 2, title: 'Update beneficiary information', status: 'Completed', dueDate: '2024-09-15' },
+    { id: 1, title: 'Obtain Death Certificate', status: 'In Progress', dueDate: '2024-10-01' },
+    { id: 2, title: 'Review the Will and Estate Plan', status: 'Completed', dueDate: '2024-09-15' },
     { id: 3, title: 'Schedule meeting with attorney', status: 'Pending', dueDate: '2024-10-10' },
-    { id: 4, title: 'Gather asset documentation', status: 'In Progress', dueDate: '2024-10-05' },
+    { id: 4, title: 'Inventory the Estate Assets', status: 'In Progress', dueDate: '2024-10-05' },
   ]
 
   return (

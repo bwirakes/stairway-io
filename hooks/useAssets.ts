@@ -43,7 +43,7 @@ export function useAssets() {
       if (!response.ok) {
         throw new Error('Failed to fetch assets');
       }
-      const data = await response.json();
+      const data: AssetInformation[] = await response.json();
       setAssets(data);
       setLoading(false);
     } catch (err) {
@@ -64,7 +64,7 @@ export function useAssets() {
       if (!response.ok) {
         throw new Error('Failed to create asset');
       }
-      const createdAsset = await response.json();
+      const createdAsset: AssetInformation = await response.json();
       setAssets([...assets, createdAsset]);
       return createdAsset;
     } catch (err) {

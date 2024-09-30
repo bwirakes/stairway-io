@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
+import { AssetInformation } from '@prisma/client'
 import {
   Table,
   TableBody,
@@ -20,9 +21,12 @@ import { DotsVerticalIcon } from '@radix-ui/react-icons'
 import { FiCreditCard, FiDollarSign, FiPieChart, FiTrendingUp, FiUser } from 'react-icons/fi'
 import { AccountStatus } from '@prisma/client'
 import { useAssets } from '@/hooks/useAssets'
+import AssetDetailsDrawer from '@/components/AssetDetailsDrawer'
 
 const AssetsTable: React.FC = () => {
-  const { assets, loading, error } = useAssets()
+  const { assets, loading } = useAssets()
+  const [selectedAsset, setSelectedAsset] = useState<AssetInformation | null>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   const getStatusColor = (status: AccountStatus) => {
     switch (status) {
@@ -51,8 +55,14 @@ const AssetsTable: React.FC = () => {
     }
   }
 
+  const handleViewDetails = (asset: AssetInformation) => {
+    setSelectedAsset(asset)
+    setIsDrawerOpen(true)
+  }
+
   if (loading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
+  
+
 
   return (
     <div className="bg-white shadow-sm rounded-xl dark:bg-neutral-900">
@@ -73,10 +83,10 @@ const AssetsTable: React.FC = () => {
                     <TableHead>Asset Name</TableHead>
                     <TableHead>Account Number</TableHead>
                     <TableHead>Current Value</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead className="hidden md:table-cell">Status</TableHead>
                     <TableHead className="hidden md:table-cell">Plan</TableHead>
                     <TableHead className="hidden md:table-cell">Category</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="hidden md:table-cell text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -85,9 +95,9 @@ const AssetsTable: React.FC = () => {
                       <TableCell>{getAccountIcon(asset.asset_category)}</TableCell>
                       <TableCell className="font-medium">{asset.asset_name}</TableCell>
                       <TableCell>{asset.account_number}</TableCell>
-                      <TableCell>${asset.current_value.toFixed(2)}</TableCell>
+                      <TableCell>${asset.current_value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                       <TableCell>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(asset.account_status)}`}>
+                        <span className={`hidden md:table-cell inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(asset.account_status)}`}>
                           {asset.account_status}
                         </span>
                       </TableCell>
@@ -102,7 +112,7 @@ const AssetsTable: React.FC = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onSelect={() => console.log(`View ${asset.asset_name}`)}>
+                            <DropdownMenuItem onSelect={() => handleViewDetails(asset)}>
                               View details
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => console.log(`Edit ${asset.asset_name}`)}>
@@ -122,6 +132,13 @@ const AssetsTable: React.FC = () => {
           </div>
         </div>
       </div>
+      {selectedAsset && (
+        <AssetDetailsDrawer
+          assetId={selectedAsset.id}
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+        />
+      )}
     </div>
   )
 }

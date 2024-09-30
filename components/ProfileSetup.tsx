@@ -28,7 +28,7 @@ export function ProfileSetup() {
         </div>
       </div>
       <p className="mb-4 text-xs text-gray-600 sm:text-sm">
-        Your profile needs to be at least 75% complete to proceed with estate planning.
+        Complete your profile to proceed with the estate closing process.
       </p>
       <ul className="space-y-2">
         {tasks.map(task => (
