@@ -9,7 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { AssetCategory, AccountStatus, AccountPlan } from '@prisma/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -37,39 +37,32 @@ const formSchema = z.object({
   asset_category: z.nativeEnum(AssetCategory),
   account_number: z.string().nullable(),
   financial_institution: z.string().nullable(),
-  account_owner: z.string().nullable(),
-  current_value: z
-    .string()
-    .min(1, 'Current Value is required')
-    .transform(Number),
-  cost_basis: z
-    .string()
-    .nullable()
-    .transform((value) => (value ? Number(value) : null)),
-  acquisition_date: z
-    .string()
-    .nullable()
-    .transform((value) => (value ? new Date(value) : null)),
-  account_id: z.string().nullable(),
-  heir_id: z.number().nullable(),
-  is_probate: z.boolean().default(false),
-  sold: z.boolean().default(false),
-  task_id: z.number().nullable(),
-  asset_location: z.string().nullable(),
-  user_id: z.number(),
-  asset_contact_name: z.string().nullable(),
-  asset_contact_number: z.string().nullable(),
-  asset_contact_email: z.string().email('Invalid email').nullable(),
-  attachments: z.array(z.string()),
-  notes: z.string().nullable(),
+  current_value: z.string().min(1, 'Current Value is required').transform(Number),
+  cost_basis: z.string().nullable().transform((value) => (value ? Number(value) : null)),
+  acquisition_date: z.string().nullable().transform((value) => (value ? new Date(value) : null)),
   account_status: z.nativeEnum(AccountStatus),
   account_plan: z.nativeEnum(AccountPlan),
-});
+  user_id: z.number(),
+  distributions: z.array(
+    z.object({
+      heir_id: z.number(),
+      share: z.string().min(1, 'Share is required').transform(Number),
+    })
+  ).refine((data) => data.reduce((sum, item) => sum + item.share, 0) === 100, {
+    message: 'Total share must equal 100%',
+  }),
+}).required();
 
 type FormData = z.infer<typeof formSchema>;
 
+interface Heir {
+  id: number | string;
+  first_name: string;
+  last_name: string;
+}
+
 const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
-  const [heirs, setHeirs] = useState([]);
+  const [heirs, setHeirs] = useState<Heir[]>([]);
 
   useEffect(() => {
     async function fetchHeirs() {
@@ -95,47 +88,36 @@ const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      is_probate: false,
-      sold: false,
       user_id: userId,
       cost_basis: null,
       acquisition_date: null,
-      attachments: [],
-      notes: '',
-      asset_contact_name: '',
-      asset_contact_number: '',
-      asset_contact_email: '',
-      account_id: '',
-      heir_id: null,
-      task_id: null,
-      asset_location: '',
+      distributions: [{ heir_id: 0, share: 100 }],
     },
   });
 
-  const onSubmit = async (data: FormData) => {
-    console.log('Form submitted with data:', data);
-    try {
-      const assetData = {
-        ...data,
-        current_value: Number(data.current_value),
-        cost_basis: data.cost_basis ? Number(data.cost_basis) : null,
-      };
+  const { fields: distributionFields, append: appendDistribution, remove: removeDistribution } = useFieldArray({
+    control,
+    name: 'distributions',
+  });
 
-      console.log('Sending asset data to API:', assetData);
+  const onSubmit = async (data: FormData) => {
+    try {
+      console.log('Submitting data:', data); // Log the data being sent
 
       const response = await fetch('/api/assets', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(assetData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
-      console.log('API response:', response);
-
       if (!response.ok) {
-        throw new Error('Failed to create asset');
+        const errorData = await response.json();
+        console.error('Server response:', errorData); // Log the server's error response
+        throw new Error(errorData.error || 'Failed to create asset');
       }
+
+      const createdAsset = await response.json();
+      console.log('Created asset:', createdAsset); // Log the created asset
 
       toast({
         title: 'Asset Created',
@@ -153,21 +135,14 @@ const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
   };
 
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Asset Manually</DialogTitle>
-          <DialogDescription>
-            Fill in the details below to add a new asset manually.
-          </DialogDescription>
+          <DialogDescription>Fill in the details below to add a new asset manually.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-6">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Asset Name */}
             <div>
               <Label htmlFor="asset_name">Asset Name</Label>
@@ -175,15 +150,9 @@ const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
                 type="text"
                 id="asset_name"
                 {...register('asset_name')}
-                className={cn(
-                  errors.asset_name ? 'border-red-500' : 'border-gray-300'
-                )}
+                className={cn(errors.asset_name ? 'border-red-500' : 'border-gray-300')}
               />
-              {errors.asset_name && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.asset_name.message}
-                </p>
-              )}
+              {errors.asset_name && <p className="mt-1 text-sm text-red-600">{errors.asset_name.message}</p>}
             </div>
 
             {/* Asset Category */}
@@ -193,10 +162,7 @@ const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
                 name="asset_category"
                 control={control}
                 render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || ''}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
@@ -210,11 +176,7 @@ const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
                   </Select>
                 )}
               />
-              {errors.asset_category && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.asset_category.message}
-                </p>
-              )}
+              {errors.asset_category && <p className="mt-1 text-sm text-red-600">{errors.asset_category.message}</p>}
             </div>
 
             {/* Account Number */}
@@ -224,102 +186,59 @@ const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
                 type="text"
                 id="account_number"
                 {...register('account_number')}
-                className={cn(
-                  errors.account_number ? 'border-red-500' : 'border-gray-300'
-                )}
+                className={cn(errors.account_number ? 'border-red-500' : 'border-gray-300')}
               />
-              {errors.account_number && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.account_number.message}
-                </p>
-              )}
+              {errors.account_number && <p className="mt-1 text-sm text-red-600">{errors.account_number.message}</p>}
             </div>
 
             {/* Financial Institution Name */}
             <div>
-              <Label htmlFor="financial_institution">
-                Financial Institution Name
-              </Label>
+              <Label htmlFor="financial_institution">Financial Institution Name</Label>
               <Input
                 type="text"
                 id="financial_institution"
                 {...register('financial_institution')}
-                className={cn(
-                  errors.financial_institution
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                )}
+                className={cn(errors.financial_institution ? 'border-red-500' : 'border-gray-300')}
               />
-              {errors.financial_institution && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.financial_institution.message}
-                </p>
-              )}
+              {errors.financial_institution && <p className="mt-1 text-sm text-red-600">{errors.financial_institution.message}</p>}
             </div>
 
-            {/* Asset Value, Cost Basis, Acquisition Date */}
-            <div className="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                {/* Asset Value */}
-                <div>
-                  <Label htmlFor="current_value">Asset Value</Label>
-                  <Input
-                    type="number"
-                    id="current_value"
-                    step="0.01"
-                    {...register('current_value')}
-                    className={cn(
-                      errors.current_value
-                        ? 'border-red-500'
-                        : 'border-gray-300'
-                    )}
-                  />
-                  {errors.current_value && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.current_value.message}
-                    </p>
-                  )}
-                </div>
+            {/* Asset Value */}
+            <div>
+              <Label htmlFor="current_value">Asset Value</Label>
+              <Input
+                type="number"
+                id="current_value"
+                step="0.01"
+                {...register('current_value')}
+                className={cn(errors.current_value ? 'border-red-500' : 'border-gray-300')}
+              />
+              {errors.current_value && <p className="mt-1 text-sm text-red-600">{errors.current_value.message}</p>}
+            </div>
 
-                {/* Cost Basis */}
-                <div>
-                  <Label htmlFor="cost_basis">Cost Basis</Label>
-                  <Input
-                    type="number"
-                    id="cost_basis"
-                    step="0.01"
-                    {...register('cost_basis')}
-                    className={cn(
-                      errors.cost_basis ? 'border-red-500' : 'border-gray-300'
-                    )}
-                  />
-                  {errors.cost_basis && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.cost_basis.message}
-                    </p>
-                  )}
-                </div>
+            {/* Cost Basis */}
+            <div>
+              <Label htmlFor="cost_basis">Cost Basis</Label>
+              <Input
+                type="number"
+                id="cost_basis"
+                step="0.01"
+                {...register('cost_basis')}
+                className={cn(errors.cost_basis ? 'border-red-500' : 'border-gray-300')}
+              />
+              {errors.cost_basis && <p className="mt-1 text-sm text-red-600">{errors.cost_basis.message}</p>}
+            </div>
 
-                {/* Acquisition Date */}
-                <div>
-                  <Label htmlFor="acquisition_date">Acquisition Date</Label>
-                  <Input
-                    type="date"
-                    id="acquisition_date"
-                    {...register('acquisition_date')}
-                    className={cn(
-                      errors.acquisition_date
-                        ? 'border-red-500'
-                        : 'border-gray-300'
-                    )}
-                  />
-                  {errors.acquisition_date && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.acquisition_date.message}
-                    </p>
-                  )}
-                </div>
-              </div>
+            {/* Acquisition Date */}
+            <div>
+              <Label htmlFor="acquisition_date">Acquisition Date</Label>
+              <Input
+                type="date"
+                id="acquisition_date"
+                {...register('acquisition_date')}
+                className={cn(errors.acquisition_date ? 'border-red-500' : 'border-gray-300')}
+              />
+              {errors.acquisition_date && <p className="mt-1 text-sm text-red-600">{errors.acquisition_date.message}</p>}
             </div>
 
             {/* Account Status */}
@@ -329,28 +248,19 @@ const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
                 name="account_status"
                 control={control}
                 render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || ''}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Status" />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.values(AccountStatus).map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status}
-                        </SelectItem>
+                        <SelectItem key={status} value={status}>{status}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 )}
               />
-              {errors.account_status && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.account_status.message}
-                </p>
-              )}
+              {errors.account_status && <p className="mt-1 text-sm text-red-600">{errors.account_status.message}</p>}
             </div>
 
             {/* Account Plan */}
@@ -360,134 +270,80 @@ const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, userId }) => {
                 name="account_plan"
                 control={control}
                 render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || ''}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value || ''}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Plan" />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.values(AccountPlan).map((plan) => (
-                        <SelectItem key={plan} value={plan}>
-                          {plan.replace(/_/g, ' ')}
-                        </SelectItem>
+                        <SelectItem key={plan} value={plan}>{plan.replace(/_/g, ' ')}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 )}
               />
-              {errors.account_plan && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.account_plan.message}
-                </p>
-              )}
+              {errors.account_plan && <p className="mt-1 text-sm text-red-600">{errors.account_plan.message}</p>}
             </div>
+          </div>
 
-            {/* Distribution */}
-            <div className="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4">
-              <Label htmlFor="heir_id">Distribution</Label>
-              <Controller
-                name="heir_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value ? String(field.value) : ''}
+          {/* Distributions */}
+          <div>
+            <Label>Distributions</Label>
+            {distributionFields.map((field, index) => (
+              <div key={field.id} className="flex flex-col mt-2 space-y-2 md:flex-row md:items-center md:space-x-2 md:space-y-0">
+                <div className="w-full md:w-1/2">
+                  <Controller
+                    control={control}
+                    name={`distributions.${index}.heir_id`}
+                    render={({ field }) => (
+                      <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value !== undefined ? String(field.value) : ''}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Heir" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {heirs.map((heir: Heir) => (
+                            <SelectItem key={heir.id} value={String(heir.id)}>
+                              {`${heir.first_name} ${heir.last_name}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+                <div className="w-full md:w-1/4">
+                  <Input
+                    {...register(`distributions.${index}.share` as const)}
+                    type="number"
+                    placeholder="Share %"
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => removeDistribution(index)}
+                    disabled={distributionFields.length === 1}
+                    className="border-red-300 bg-red-500 hover:bg-red-600 text-white"
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Heir" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {heirs.map((heir) => (
-                        <SelectItem key={heir.id} value={String(heir.id)}>
-                          {`${heir.first_name} ${heir.last_name}`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.heir_id && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.heir_id.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Account Contact Information */}
-          <div>
-            <h3 className="font-medium text-gray-800 text-md">
-              Account Contact Information
-            </h3>
-            <div className="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-3">
-              {/* Contact Name */}
-              <div>
-                <Label htmlFor="asset_contact_name">Contact Name</Label>
-                <Input
-                  type="text"
-                  id="asset_contact_name"
-                  {...register('asset_contact_name')}
-                  className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm"
-                />
+                    <TrashIcon className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
-
-              {/* Contact Number */}
-              <div>
-                <Label htmlFor="asset_contact_number">Contact Number</Label>
-                <Input
-                  type="tel"
-                  id="asset_contact_number"
-                  {...register('asset_contact_number')}
-                  className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm"
-                />
-              </div>
-
-              {/* Contact Email */}
-              <div>
-                <Label htmlFor="asset_contact_email">Contact Email</Label>
-                <Input
-                  type="email"
-                  id="asset_contact_email"
-                  {...register('asset_contact_email')}
-                  className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm"
-                />
-                {errors.asset_contact_email && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.asset_contact_email.message}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Attachments */}
-          <div>
-            <Label htmlFor="attachments">
-              Upload a Photograph or PDF of the latest bank statements
-            </Label>
-            <div className="flex flex-col items-start space-y-2 sm:flex-row sm:items-center sm:space-x-2 sm:space-y-0">
-              <Input
-                type="file"
-                id="attachments"
-                {...register('attachments')}
-                multiple
-                accept="image/*,application/pdf"
-                className="flex-grow w-full h-12 border-0"
-              />
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div>
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              {...register('notes')}
-              rows={4}
-              className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm"
-            />
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => appendDistribution({ heir_id: 0, share: 0 })}
+              className="mt-2 border-2 border-gray-300 hover:border-gray-400 text-gray-600 hover:text-gray-700"
+            >
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Add Distribution
+            </Button>
+            {errors.distributions && <p className="mt-1 text-sm text-red-600">{errors.distributions.message}</p>}
           </div>
 
           {/* Hidden user_id field */}

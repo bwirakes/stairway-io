@@ -13,8 +13,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const task = await prisma.task.findUnique({
       where: { id },
       include: {
-        categories: true,
         attachments: true,
+        project: true,
+        owner: true,
       },
     });
 
@@ -26,18 +27,21 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         deadline: task.deadline.toISOString(),
         status: task.status,
         priority: task.priority,
-        project: task.project,
-        owner: task.owner,
+        project: {
+          id: task.project.id,
+          name: task.project.name,
+          projectCategory: task.project.projectCategory,
+        },
+        owner: task.owner.id,
+        ownerId: task.ownerId,
         notes: task.notes || '',
-        categories: task.categories.map((cat) => ({
-          id: cat.id,
-          name: cat.name,
-        })),
         attachments: task.attachments.map((att) => ({
           id: att.id,
           url: att.url,
           taskId: att.taskId,
         })),
+        projectId: task.projectId,
+        accountId: task.accountId,
       };
       return NextResponse.json(formattedTask, { status: 200 });
     } else {
@@ -54,30 +58,24 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
   try {
     const body = await request.json();
-    const { title, deadline, status, priority, owner, notes, categories } = body;
+    const { title, deadline, status, priority, ownerId, notes, projectId, accountId } = body;
 
     const updatedTask = await prisma.task.update({
       where: { id },
       data: {
-        title: title ?? undefined,
+        title,
         deadline: deadline ? new Date(deadline) : undefined,
-        status: status ?? undefined,
-        priority: priority ?? undefined,
-        owner: owner ?? undefined,
-        notes: notes ?? undefined,
-        categories: {
-          set: [], // Remove existing categories
-          connectOrCreate: categories
-            ? (categories as string[]).map((name: string) => ({
-                where: { name },
-                create: { name },
-              }))
-            : [],
-        },
+        status,
+        priority,
+        ownerId,
+        notes,
+        projectId,
+        accountId,
       },
       include: {
-        categories: true,
         attachments: true,
+        project: true,
+        owner: true,
       },
     });
 
@@ -88,18 +86,21 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       deadline: updatedTask.deadline.toISOString(),
       status: updatedTask.status,
       priority: updatedTask.priority,
-      project: updatedTask.project,
-      owner: updatedTask.owner,
+      project: {
+        id: updatedTask.projectId,
+        name: updatedTask.project.name,
+        projectCategory: updatedTask.project.projectCategory,
+      },
+      owner: updatedTask.owner.id,
+      ownerId: updatedTask.ownerId,
       notes: updatedTask.notes || '',
-      categories: updatedTask.categories.map((cat) => ({
-        id: cat.id,
-        name: cat.name,
-      })),
       attachments: updatedTask.attachments.map((att) => ({
         id: att.id,
         url: att.url,
         taskId: att.taskId,
       })),
+      projectId: updatedTask.projectId,
+      accountId: updatedTask.accountId,
     };
 
     return NextResponse.json(formattedTask, { status: 200 });
@@ -116,7 +117,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     await prisma.task.delete({
       where: { id },
     });
-    return NextResponse.json(null, { status: 204 });
+    return NextResponse.json({ message: 'Task deleted successfully' }, { status: 204 });
   } catch (error) {
     console.error('Error deleting task:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

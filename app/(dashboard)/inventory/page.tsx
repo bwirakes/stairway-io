@@ -4,7 +4,25 @@ import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import AccountTable from '@/components/ui/account-table';
 import HorizontalBarChart from '@/components/HorizontalBarChart';
-import { FiDollarSign, FiHome, FiCreditCard, FiTrendingUp, FiMoreHorizontal } from 'react-icons/fi';
+import {
+  FiTrendingUp,
+  FiDollarSign,
+  FiCreditCard,
+  FiHome,
+  FiBox,
+  FiAward,
+  FiShield,
+  FiBriefcase,
+  FiGlobe,
+  FiHexagon,
+  FiTruck,
+  FiImage,
+  FiDatabase,
+  FiHeart,
+  FiUsers,
+  FiMap,
+  FiMoreHorizontal
+} from 'react-icons/fi';
 import { useAssets } from 'hooks/useAssets';
 import { SummaryCard } from '@/components/ui/summary-card';
 import { AssetInformation, AssetCategory } from '@prisma/client';
@@ -67,19 +85,73 @@ const liabilitiesData = [
   },
 ];
 
+const assetCategoryMap: { [key in AssetCategory]: string } = {
+  CHECKING_ACCOUNT: "Checking Account",
+  SAVINGS_ACCOUNT: "Savings Account",
+  CERTIFICATE_OF_DEPOSIT: "Certificate of Deposit",
+  MONEY_MARKET_ACCOUNT: "Money Market Account",
+  IRA: "IRA",
+  ROTH_IRA: "Roth IRA",
+  RETIREMENT_401K: "401K",
+  ROTH_401K: "Roth 401K",
+  PENSION: "Pension",
+  TRUST: "Trust",
+  BROKERAGE_ACCOUNT: "Brokerage Account",
+  ANNUITY_NON_QUALIFIED: "Annuity Non-Qualified",
+  ANNUITY_QUALIFIED: "Annuity Qualified",
+  BONDS: "Bonds",
+  REAL_ESTATE: "Real Estate",
+  COLLECTIBLE: "Collectible",
+  CRYPTOCURRENCY: "Cryptocurrency",
+  LIFE_INSURANCE_POLICY: "Life Insurance Policy",
+  BUSINESS: "Business",
+  VEHICLE: "Vehicle",
+  OTHER: "Other",
+  MAPS: "Maps"
+};
+
 // Function to get the appropriate icon based on category
 const getCategoryIcon = (category: AssetCategory) => {
   switch (category) {
-    case AssetCategory.STOCKS:
+    case AssetCategory.CHECKING_ACCOUNT:
+    case AssetCategory.SAVINGS_ACCOUNT:
+    case AssetCategory.MONEY_MARKET_ACCOUNT:
+      return <FiDollarSign className="w-5 h-5 text-blue-500" />;
+    case AssetCategory.CERTIFICATE_OF_DEPOSIT:
+      return <FiAward className="w-5 h-5 text-yellow-500" />;
+    case AssetCategory.IRA:
+    case AssetCategory.ROTH_IRA:
+    case AssetCategory.RETIREMENT_401K:
+    case AssetCategory.ROTH_401K:
+    case AssetCategory.PENSION:
+      return <FiShield className="w-5 h-5 text-purple-500" />;
+    case AssetCategory.TRUST:
+      return <FiUsers className="w-5 h-5 text-indigo-500" />;
     case AssetCategory.BROKERAGE_ACCOUNT:
       return <FiTrendingUp className="w-5 h-5 text-green-500" />;
-    case AssetCategory.CASH:
-    case AssetCategory.DEPOSIT_ACCOUNT:
-      return <FiDollarSign className="w-5 h-5 text-blue-500" />;
-    case AssetCategory.LOAN:
+    case AssetCategory.ANNUITY_NON_QUALIFIED:
+    case AssetCategory.ANNUITY_QUALIFIED:
+      return <FiBox className="w-5 h-5 text-orange-500" />;
+    case AssetCategory.BONDS:
       return <FiCreditCard className="w-5 h-5 text-red-500" />;
+    case AssetCategory.REAL_ESTATE:
+      return <FiHome className="w-5 h-5 text-teal-500" />;
+    case AssetCategory.COLLECTIBLE:
+      return <FiImage className="w-5 h-5 text-pink-500" />;
+    case AssetCategory.CRYPTOCURRENCY:
+      return <FiHexagon className="w-5 h-5 text-cyan-500" />;
+    case AssetCategory.LIFE_INSURANCE_POLICY:
+      return <FiHeart className="w-5 h-5 text-red-500" />;
+    case AssetCategory.BUSINESS:
+      return <FiBriefcase className="w-5 h-5 text-blue-700" />;
+    case AssetCategory.VEHICLE:
+      return <FiTruck className="w-5 h-5 text-gray-600" />;
+    case AssetCategory.MAPS:
+      return <FiMap className="w-5 h-5 text-green-700" />;
+    case AssetCategory.OTHER:
+      return <FiMoreHorizontal className="w-5 h-5 text-gray-500" />;
     default:
-      return <FiHome className="w-5 h-5 text-gray-500" />;
+      return <FiGlobe className="w-5 h-5 text-gray-500" />;
   }
 };
 
@@ -103,7 +175,7 @@ export default function EstateInventoryPage() {
     return Object.entries(categoryMap).map(([category, { sum, assets }]) => ({
       id: category,
       logo: getCategoryIcon(category as AssetCategory),
-      type: category,
+      type: assetCategoryMap[category as AssetCategory] || category,
       value: `$${sum.toLocaleString()}`,
       children: assets.map((asset) => ({
         id: asset.id,
@@ -117,6 +189,7 @@ export default function EstateInventoryPage() {
   const totalAssets = useMemo(() => {
     return assets ? assets.reduce((sum, asset) => sum + asset.current_value, 0) : 0;
   }, [assets]);
+
 
   const totalLiabilities = useMemo(() => {
     return liabilitiesData.reduce((sum, liability) => sum + parseInt(liability.value.replace(/[^0-9]/g, '')), 0);

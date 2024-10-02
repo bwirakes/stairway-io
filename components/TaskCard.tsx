@@ -105,9 +105,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           <div className="mb-2">
             <span className="font-medium">Notes:</span> {task.notes || 'None'}
           </div>
-          <div className="mb-2">
-            <span className="font-medium">Categories:</span> {task.categories.map(cat => cat.name).join(', ')}
-          </div>
 
           {/* Attachments */}
           <div className="mb-2">

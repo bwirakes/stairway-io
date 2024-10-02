@@ -25,9 +25,9 @@ export default function AssetDetailsSidebar({ assetId, isOpen, onClose }: AssetD
   if (!asset) return <div className="p-4">Asset not found</div>
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] lg:w-[640px] bg-background border-l shadow-lg z-50 transition-transform duration-300 ease-in-out">
+    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] lg:w-[640px] border-l shadow-lg z-50 transition-transform duration-300 ease-in-out">
       <Card className="h-full rounded-none">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sticky top-0 bg-background z-10">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sticky top-0 z-10">
           <CardTitle className="text-lg font-semibold">Asset Details</CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />

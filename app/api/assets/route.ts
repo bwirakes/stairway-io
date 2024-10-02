@@ -1,40 +1,37 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { z } from 'zod'
+import { AssetCategory, AccountStatus, AccountPlan } from '@prisma/client'
 
 const assetSchema = z.object({
-  asset_name: z.string(),
-  asset_category: z.enum(['ANNUITY_NON_QUALIFIED', 'ANNUITY_QUALIFIED', 'BONDS', 'BROKERAGE_ACCOUNT', 'BUSINESS', 'CASH', 'COLLECTIBLE', 'CRYPTOCURRENCY', 'DEPOSIT_ACCOUNT', 'ESTATE_ACCOUNT', 'JEWELRY', 'LIFE_INSURANCE', 'LOAN', 'OTHER', 'PRECIOUS_METAL', 'REAL_ESTATE', 'REFUND', 'RETIREMENT', 'STOCKS', 'TRUST', 'VEHICLE']),
+  asset_name: z.string().min(1, 'Asset Name is required'),
+  asset_category: z.nativeEnum(AssetCategory),
   account_number: z.string().nullable(),
   financial_institution: z.string().nullable(),
-  account_owner: z.string().nullable(),
   current_value: z.number(),
-  account_id: z.string().nullable(),
-  distribution_id: z.number().nullable(),
-  is_probate: z.boolean(),
-  sold: z.boolean(),
   cost_basis: z.number().nullable(),
-  acquisition_date: z.date().nullable(),
-  task_id: z.number().nullable(),
-  asset_location: z.string().nullable(),
+  acquisition_date: z.string().nullable().transform((val) => val ? new Date(val) : null),
+  account_status: z.nativeEnum(AccountStatus),
+  account_plan: z.nativeEnum(AccountPlan),
   user_id: z.number(),
-  asset_contact_name: z.string().nullable(),
-  asset_contact_number: z.string().nullable(),
-  asset_contact_email: z.string().email().nullable(),
-  attachments: z.array(z.string()),
-  notes: z.string().nullable(),
-  account_status: z.enum(['OPEN', 'CLOSED', 'TRANSFERRED']),
-  account_plan: z.enum(['INDIVIDUAL', 'JOINT', 'PAYABLE_ON_DEATH', 'TRANSFERRED']),
-  beneficiaries: z.array(z.object({
-    name: z.string(),
-    share: z.number(),
-  })),
-})
+  distributions: z.array(
+    z.object({
+      heir_id: z.number(),
+      share: z.number(),
+    })
+  ).refine((data) => data.reduce((sum, item) => sum + item.share, 0) === 100, {
+    message: 'Total share must equal 100%',
+  }),
+}).required();
 
 export async function GET() {
   try {
     const assets = await prisma.assetInformation.findMany()
-    return NextResponse.json(assets)
+    const formattedAssets = assets.map(asset => ({
+      ...asset,
+      attachments: asset.attachments,
+    }))
+    return NextResponse.json(formattedAssets)
   } catch (error) {
     console.error('Error fetching assets:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
@@ -43,15 +40,29 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json()
-    const validatedData = assetSchema.parse(data)
-    const newAsset = await prisma.assetInformation.create({ data: validatedData })
-    return NextResponse.json(newAsset, { status: 201 })
+    const data = await request.json();
+    console.log('Received data:', data);
+
+    const validatedData = assetSchema.parse(data);
+    console.log('Validated data:', validatedData);
+
+    const newAsset = await prisma.assetInformation.create({
+      data: {
+        ...validatedData,
+        distributions: {
+          create: validatedData.distributions,
+        },
+      },
+    });
+    console.log('New asset created:', newAsset);
+
+    return NextResponse.json(newAsset, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 })
+      console.error('Validation error:', error.errors);
+      return NextResponse.json({ error: error.errors }, { status: 400 });
     }
-    console.error('Error creating asset:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    console.error('Error creating asset:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
