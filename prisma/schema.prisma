@@ -80,12 +80,11 @@ model Task {
   status       Status
   priority     Priority
   notes        String?
-  categories   Category[]   @relation("TaskCategories")
   attachments  Attachment[]
   accountId    String? // New field for account ID
   owner        User         @relation(fields: [ownerId], references: [id]) // Connect to User model
   ownerId      String // New field for owner ID
-  project      Project?     @relation(fields: [projectId], references: [id]) // Add this line for project relation
+  project      Project     @relation(fields: [projectId], references: [id]) // Add this line for project relation
   projectId    String // New field for project ID
 }
 
@@ -183,11 +182,6 @@ model Heir {
   updated_at        DateTime       @updatedAt
 }
 
-model Category {
-  id    String @id @default(cuid())
-  name  String @unique
-  tasks Task[] @relation("TaskCategories")
-}
 
 model Attachment {
   id     String @id @default(cuid())

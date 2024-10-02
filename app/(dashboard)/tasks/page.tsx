@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { EstateProgress } from '@/components/EstateProgress';
 import AddTaskButton from '@/components/AddTaskButton';
 import AddTaskModal from '@/components/modals/AddTaskModal';
-import {HorizontalTimeline} from '@/components/HorizontalTimeline';
+import { HorizontalTimeline } from '@/components/HorizontalTimeline';
 import { Task } from '@/types';
 import { Status } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,12 +78,12 @@ const TasksPage: React.FC = () => {
 
         <div className="mb-8">
           <h2 className="mb-4 text-2xl font-semibold">Upcoming Tasks</h2>
-          <HorizontalTimeline/>
+          <HorizontalTimeline />
         </div>
 
         <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">
           {projectCategories.map((category) => {
-            const categoryTasks = taskList.filter(task => task.project === category);
+            const categoryTasks = taskList.filter(task => task.project.name === category);
             const upcomingCategoryTasks = getUpcomingTasks(categoryTasks);
 
             return (

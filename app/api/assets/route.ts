@@ -14,6 +14,7 @@ const assetSchema = z.object({
   is_probate: z.boolean(),
   sold: z.boolean(),
   cost_basis: z.number().nullable(),
+  acquisition_date: z.date().nullable(),
   task_id: z.number().nullable(),
   asset_location: z.string().nullable(),
   user_id: z.number(),

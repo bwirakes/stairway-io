@@ -21,7 +21,7 @@ import { DotsVerticalIcon } from '@radix-ui/react-icons'
 import { FiCreditCard, FiDollarSign, FiPieChart, FiTrendingUp, FiUser } from 'react-icons/fi'
 import { AccountStatus } from '@prisma/client'
 import { useAssets } from '@/hooks/useAssets'
-import AssetDetailsDrawer from '@/components/AssetDetailsDrawer'
+import AssetDetailsSidebar from '@/components/AssetDetailsSidebar'
 
 const AssetsTable: React.FC = () => {
   const { assets, loading } = useAssets()
@@ -133,7 +133,7 @@ const AssetsTable: React.FC = () => {
         </div>
       </div>
       {selectedAsset && (
-        <AssetDetailsDrawer
+        <AssetDetailsSidebar
           assetId={selectedAsset.id}
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}

@@ -1,9 +1,29 @@
-import { Status, Priority, Project } from '@prisma/client';
+import { Status, Priority, ProjectCategory, ProjectStatus } from '@prisma/client';
 
-
-export interface Category {
+export interface Project {
   id: string;
   name: string;
+  startDate: string; // ISO string
+  deadline: string; // ISO string
+  status: ProjectStatus;
+  projectCategory: ProjectCategory;
+  description: string;
+  owner: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  tasks: {
+    id: string;
+    title: string;
+    status: Status;
+  }[];
+}
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface Attachment {
@@ -22,7 +42,6 @@ export interface Task {
   project: Project;
   owner: string;
   notes?: string;
-  categories: Category[];
   attachments: Attachment[];
 }
 
