@@ -1,16 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import AccountTable from '@/components/ui/account-table';
 import HorizontalBarChart from '@/components/HorizontalBarChart';
 import { FiDollarSign, FiHome, FiCreditCard, FiTrendingUp, FiMoreHorizontal } from 'react-icons/fi';
 import { useAssets } from 'hooks/useAssets';
 import { SummaryCard } from '@/components/ui/summary-card';
+import { AssetInformation, AssetCategory } from '@prisma/client';
 
 const liabilitiesData = [
   {
-    id: 1,
+    id: '1',
     logo: <FiHome className="w-5 h-5 text-red-500" />,
     type: 'Mortgage',
     value: '$150,000',
@@ -21,7 +22,7 @@ const liabilitiesData = [
     isAsset: false,
   },
   {
-    id: 2,
+    id: '2',
     logo: <FiCreditCard className="w-5 h-5 text-purple-500" />,
     type: 'Credit Card Loans',
     value: '$20,000',
@@ -32,7 +33,7 @@ const liabilitiesData = [
     isAsset: false,
   },
   {
-    id: 3,
+    id: '3',
     logo: <FiTrendingUp className="w-5 h-5 text-blue-500" />,
     type: 'Auto Loans',
     value: '$30,000',
@@ -43,7 +44,7 @@ const liabilitiesData = [
     isAsset: false,
   },
   {
-    id: 4,
+    id: '4',
     logo: <FiDollarSign className="w-5 h-5 text-green-500" />,
     type: 'Student Debt',
     value: '$25,000',
@@ -54,7 +55,7 @@ const liabilitiesData = [
     isAsset: false,
   },
   {
-    id: 5,
+    id: '5',
     logo: <FiMoreHorizontal className="w-5 h-5 text-gray-500" />,
     type: 'Others',
     value: '$10,000',
@@ -66,23 +67,63 @@ const liabilitiesData = [
   },
 ];
 
+// Function to get the appropriate icon based on category
+const getCategoryIcon = (category: AssetCategory) => {
+  switch (category) {
+    case AssetCategory.STOCKS:
+    case AssetCategory.BROKERAGE_ACCOUNT:
+      return <FiTrendingUp className="w-5 h-5 text-green-500" />;
+    case AssetCategory.CASH:
+    case AssetCategory.DEPOSIT_ACCOUNT:
+      return <FiDollarSign className="w-5 h-5 text-blue-500" />;
+    case AssetCategory.LOAN:
+      return <FiCreditCard className="w-5 h-5 text-red-500" />;
+    default:
+      return <FiHome className="w-5 h-5 text-gray-500" />;
+  }
+};
+
 export default function EstateInventoryPage() {
   const { assets, loading, error } = useAssets();
 
+  const assetsByCategory = useMemo(() => {
+    if (!assets) return [];
+
+    const categoryMap: { [key in AssetCategory]?: { sum: number; assets: AssetInformation[] } } = {};
+
+    assets.forEach((asset: AssetInformation) => {
+      const category = asset.asset_category;
+      if (!categoryMap[category]) {
+        categoryMap[category] = { sum: 0, assets: [] };
+      }
+      categoryMap[category]!.sum += asset.current_value;
+      categoryMap[category]!.assets.push(asset);
+    });
+
+    return Object.entries(categoryMap).map(([category, { sum, assets }]) => ({
+      id: category,
+      logo: getCategoryIcon(category as AssetCategory),
+      type: category,
+      value: `$${sum.toLocaleString()}`,
+      children: assets.map((asset) => ({
+        id: asset.id,
+        name: asset.asset_name,
+        value: `$${asset.current_value.toLocaleString()}`,
+      })),
+      isAsset: true,
+    }));
+  }, [assets]);
+
+  const totalAssets = useMemo(() => {
+    return assets ? assets.reduce((sum, asset) => sum + asset.current_value, 0) : 0;
+  }, [assets]);
+
+  const totalLiabilities = useMemo(() => {
+    return liabilitiesData.reduce((sum, liability) => sum + parseInt(liability.value.replace(/[^0-9]/g, '')), 0);
+  }, []);
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-
-  const assetsData = assets.map(asset => ({
-    id: asset.id,
-    logo: <FiDollarSign className="w-5 h-5 text-blue-500" />,
-    type: asset.asset_category,
-    value: `$${asset.current_value.toLocaleString()}`,
-    children: [{ id: asset.id, name: asset.asset_name, value: `$${asset.current_value.toLocaleString()}` }],
-    isAsset: true,
-  }));
-
-  const totalAssets = assetsData.reduce((sum, asset) => sum + parseInt(asset.value.replace(/[^0-9]/g, '')), 0);
-  const totalLiabilities = liabilitiesData.reduce((sum, liability) => sum + parseInt(liability.value.replace(/[^0-9]/g, '')), 0);
 
   return (
     <div className="w-full min-h-screen bg-gray-100">
@@ -112,7 +153,10 @@ export default function EstateInventoryPage() {
           <Card className="p-6 bg-white shadow-md">
             <HorizontalBarChart
               title="Asset Composition"
-              data={assetsData.map(asset => ({ name: asset.type, value: parseInt(asset.value.replace(/[^0-9]/g, '')) }))}
+              data={assetsByCategory.map((category) => ({ 
+                name: category.type, 
+                value: parseInt(category.value.replace(/[^0-9]/g, ''))
+              }))}
               colors={['#4299E1', '#48BB78', '#9F7AEA', '#ECC94B', '#F56565', '#667EEA', '#718096']}
             />
           </Card>
@@ -121,7 +165,10 @@ export default function EstateInventoryPage() {
           <Card className="p-6 bg-white shadow-md">
             <HorizontalBarChart
               title="Liability Composition"
-              data={liabilitiesData.map(liability => ({ name: liability.type, value: parseInt(liability.value.replace(/[^0-9]/g, '')) }))}
+              data={liabilitiesData.map(liability => ({ 
+                name: liability.type, 
+                value: parseInt(liability.value.replace(/[^0-9]/g, '')) 
+              }))}
               colors={['#F56565', '#9F7AEA', '#4299E1', '#48BB78', '#718096']}
             />
           </Card>
@@ -130,7 +177,7 @@ export default function EstateInventoryPage() {
         {/* Assets and Liabilities Tables */}
         <div className="grid w-full grid-cols-1 gap-6 max-w-7xl sm:grid-cols-2">
           {/* Assets Table */}
-          <AccountTable title="Assets" data={assetsData} />
+          <AccountTable title="Assets" data={assetsByCategory} />
 
           {/* Liabilities Table */}
           <AccountTable title="Liabilities" data={liabilitiesData} />

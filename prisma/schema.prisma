@@ -8,38 +8,68 @@ generator client {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  accessToken  String?
-  itemId       String?
-  accounts     Account[]
-  transactions Transaction[]
+  id               String             @id @default(uuid())
+  email            String             @unique
+  accessToken      String?
+  itemId           String?
+  accounts         Account[]
+  transactions     Transaction[]
+  firstName        String
+  middleName       String?
+  lastName         String
+  name             String
+  address1         String
+  city             String
+  state            String
+  postalCode       String
+  dateOfBirth      DateTime
+  ssn              String
+  role             Role
+  projects         Project[]
+  tasks            Task[]
+  assetInformation AssetInformation[] // Add this line for asset information
 }
 
 model Account {
-  id            String   @id @default(uuid())
-  user          User     @relation(fields: [userId], references: [id])
-  userId        String
-  plaidAccountId String  @unique
-  name          String
-  officialName  String?
-  type          String
-  subtype       String?
-  mask          String?
-  balances      Json
+  id               String  @id @default(uuid())
+  user             User    @relation(fields: [userId], references: [id])
+  userId           String
+  plaidAccountId   String  @unique
+  name             String
+  officialName     String?
+  mask             String?
+  type             String
+  subtype          String?
+  balances         Json
+  availableBalance Float? // New field for available balance
+  currentBalance   Float? // New field for current balance
+  institutionId    String? // New field for institution ID
 }
 
 model Transaction {
-  id             String   @id @default(uuid())
-  user           User     @relation(fields: [userId], references: [id])
-  userId         String
-  plaidTransId   String   @unique
-  accountId      String
-  amount         Float
-  date           DateTime
-  name           String
-  category       String[]
-  pending        Boolean
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  plaidTransId String   @unique
+  accountId    String
+  amount       Float
+  date         DateTime
+  name         String
+  category     String[]
+  pending      Boolean
+}
+
+model Project {
+  id              String          @id @default(cuid())
+  name            String
+  startDate       DateTime
+  deadline        DateTime
+  status          ProjectStatus
+  projectCategory ProjectCategory
+  description     String?
+  owner           User            @relation(fields: [ownerId], references: [id]) // Connect to User model
+  ownerId         String // New field for owner ID
+  tasks           Task[]
 }
 
 model Task {
@@ -49,88 +79,93 @@ model Task {
   deadline     DateTime
   status       Status
   priority     Priority
-  project      Project      @default(LEGAL)  //
-  owner        String
   notes        String?
   categories   Category[]   @relation("TaskCategories")
   attachments  Attachment[]
+  accountId    String? // New field for account ID
+  owner        User         @relation(fields: [ownerId], references: [id]) // Connect to User model
+  ownerId      String // New field for owner ID
+  project      Project?     @relation(fields: [projectId], references: [id]) // Add this line for project relation
+  projectId    String // New field for project ID
 }
 
 model AssetInformation {
-  id                    Int       @id @default(autoincrement())
+  id                    Int           @id @default(autoincrement())
   asset_name            String
   account_id            String?
   account_number        String?
   financial_institution String?
   account_owner         String?
   current_value         Float
+  cost_basis            Float
+  acquisition_date      DateTime
   attachments           String[]
   notes                 String?
   asset_category        AssetCategory
   distribution          Distribution? @relation(fields: [distribution_id], references: [id])
   distribution_id       Int?
-  is_probate            Boolean   @default(false)
-  sold                  Boolean   @default(false)
-  cost_basis            Float?
+  is_probate            Boolean       @default(false)
+  sold                  Boolean       @default(false)
   task_id               Int?
   asset_location        String?
-  user_id               Int
+  user_id               String // Add userId field
   asset_contact_number  String?
   asset_contact_name    String?
   asset_contact_email   String?
-  created_at            DateTime  @default(now())
-  updated_at            DateTime  @updatedAt
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
   account_status        AccountStatus @default(OPEN)
   account_plan          AccountPlan
+  user                  User          @relation(fields: [user_id], references: [id]) // Relation to User model
 }
 
 model EstateInformation {
-  id                        Int      @id @default(autoincrement())
-  first_name                String
-  middle_initial            String?
-  last_name                 String
-  ssn                       String
-  estate_ein                String?
-  probate_case_num          String?
-  residence_phone           String?
-  mobile_phone              String?
-  email                     String?
-  suffix                    String?
+  id                         Int       @id @default(autoincrement())
+  first_name                 String
+  middle_initial             String?
+  last_name                  String
+  ssn                        String
+  estate_ein                 String?
+  probate_case_num           String?
+  residence_phone            String?
+  mobile_phone               String?
+  email                      String?
+  suffix                     String?
   legal_res_street_address_1 String
   legal_res_street_address_2 String?
-  legal_res_city            String
-  legal_res_state           String
-  legal_res_zipcode         String
-  will                      String?
-  funeral_wishes            String?
-  death_certificate         String?
-  date_of_birth             DateTime
-  date_of_death             DateTime?
-  death_city                String?
-  death_state               String?
-  death_country             String?
-  birth_city                String
-  birth_state               String
-  birth_country             String
-  created_at                DateTime @default(now())
-  updated_at                DateTime @updatedAt
+  legal_res_city             String
+  legal_res_state            String
+  legal_res_zipcode          String
+  will                       String?
+  funeral_wishes             String?
+  death_certificate          String?
+  date_of_birth              DateTime
+  date_of_death              DateTime?
+  death_city                 String?
+  death_state                String?
+  death_country              String?
+  birth_city                 String
+  birth_state                String
+  birth_country              String
+  created_at                 DateTime  @default(now())
+  updated_at                 DateTime  @updatedAt
 }
 
 model Distribution {
-  id                    Int       @id @default(autoincrement())
+  id                    Int                @id @default(autoincrement())
   distribution_share_id Int?
-  heir                  Heir      @relation(fields: [heir_id], references: [id])
+  heir                  Heir               @relation(fields: [heir_id], references: [id])
   heir_id               Int
   account               String?
   share_of_distribution Float
   distribution_type     String
   assets                AssetInformation[]
-  created_at            DateTime  @default(now())
-  updated_at            DateTime  @updatedAt
+  created_at            DateTime           @default(now())
+  updated_at            DateTime           @updatedAt
 }
 
 model Heir {
-  id                Int       @id @default(autoincrement())
+  id                Int            @id @default(autoincrement())
   first_name        String
   middle_initial    String?
   last_name         String
@@ -144,14 +179,14 @@ model Heir {
   target_percentage Float
   relation          String
   distributions     Distribution[]
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
 }
 
 model Category {
-  id    String  @id @default(cuid())
-  name  String  @unique
-  tasks Task[]  @relation("TaskCategories")
+  id    String @id @default(cuid())
+  name  String @unique
+  tasks Task[] @relation("TaskCategories")
 }
 
 model Attachment {
@@ -162,7 +197,8 @@ model Attachment {
 }
 
 enum Status {
-  BEGIN
+  NOT_STARTED
+  PENDING
   IN_PROGRESS
   COMPLETE
 }
@@ -173,35 +209,29 @@ enum Priority {
   HIGH
 }
 
-enum Project {
-  REAL_ESTATE @map("Real Estate")
-  LEGAL
-  FINANCES
-  DISTRIBUTIONS
-}
-
 enum AssetCategory {
-  ANNUITY_NON_QUALIFIED
-  ANNUITY_QUALIFIED
-  BONDS
-  BROKERAGE_ACCOUNT
-  BUSINESS
-  CASH
-  COLLECTIBLE
-  CRYPTOCURRENCY
-  DEPOSIT_ACCOUNT
-  ESTATE_ACCOUNT
-  JEWELRY
-  LIFE_INSURANCE
-  LOAN
-  OTHER
-  PRECIOUS_METAL
-  REAL_ESTATE
-  REFUND
-  RETIREMENT
-  STOCKS
-  TRUST
-  VEHICLE
+  CHECKING_ACCOUNT @map("Checking Account")
+  SAVINGS_ACCOUNT @map("Savings Account")
+  CERTIFICATE_OF_DEPOSIT @map("Certificate of Deposit")
+  MONEY_MARKET_ACCOUNT @map("Money Market Account")
+  IRA @map("IRA")
+  ROTH_IRA @map("Roth IRA")
+  RETIREMENT_401K @map("401K")
+  ROTH_401K @map("Roth 401K")
+  PENSION @map("Pension")
+  TRUST @map("Trust")
+  BROKERAGE_ACCOUNT @map("Brokerage Account")
+  ANNUITY_NON_QUALIFIED @map("Annuity Non-Qualified")
+  ANNUITY_QUALIFIED @map("Annuity Qualified")
+  BONDS @map("Bonds")
+  REAL_ESTATE @map("Real Estate")
+  COLLECTIBLE @map("Collectible")
+  CRYPTOCURRENCY @map("Cryptocurrency")
+  LIFE_INSURANCE_POLICY @map("Life Insurance Policy")
+  BUSINESS @map("Business")
+  VEHICLE @map("Vehicle")
+  OTHER @map("Other")
+  MAPS @map("Maps")
 }
 
 enum AccountStatus {
@@ -215,4 +245,30 @@ enum AccountPlan {
   JOINT
   PAYABLE_ON_DEATH
   TRANSFERRED
+}
+
+enum Role {
+  ATTORNEY
+  ACCOUNTANT
+  RELATIVE
+  DECEDENT
+  SPOUSE
+  EXECUTOR
+  FINANCIAL_ADVISOR
+  APPRAISER
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+}
+
+enum ProjectCategory {
+  REAL_ESTATE   @map("Real Estate")
+  LEGAL
+  FINANCES
+  DISTRIBUTIONS
+  ONBOARDING
 }
