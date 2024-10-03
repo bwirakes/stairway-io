@@ -1,5 +1,33 @@
 import { Status, Priority, ProjectCategory, ProjectStatus } from '@prisma/client';
 
+export interface Attachment {
+  id: string;
+  url: string;
+  taskId: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  creationDate: string; // ISO string
+  deadline: string; // ISO string
+  status: Status;
+  priority: Priority;
+  project: Project;
+  owner: string; // This should be the User ID
+  ownerId: string; // New field for owner ID
+  notes?: string | ''; // Changed to string | null
+  attachments?: Attachment[];
+  projectId: string; // Already present
+  accountId?: string | ''; // New field for account ID
+}
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -7,18 +35,14 @@ export interface Project {
   deadline: string; // ISO string
   status: ProjectStatus;
   projectCategory: ProjectCategory;
-  description: string;
-  owner: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    deadline: string;
-  };
-  tasks: {
-    id: string;
-    title: string;
-    status: Status;
-  }[];
+  description: string | null;
+  ownerId: string;
+  owner?: User; // Updated to reference User interface
+  tasks?: Task[];
+}
+
+export interface ProjectWithTasks extends Project {
+  tasks: Task[];
 }
 
 export interface Distribution {
@@ -41,7 +65,6 @@ export interface Heir {
   email: string;
   phone: string;
   ssn: string;
-  suffix?: string;
   street_address_1: string;
   street_address_2?: string;
   city: string;
@@ -51,34 +74,6 @@ export interface Heir {
   relation: string;
   created_at: string; // ISO string
   updated_at: string; // ISO string
-}
-
-export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-}
-
-export interface Attachment {
-  id: string;
-  url: string;
-  taskId: string;
-}
-
-export interface Task {
-  id: string;
-  title: string;
-  creationDate: string; // ISO string
-  deadline: string; // ISO string
-  status: Status;
-  priority: Priority;
-  project: Project;
-  owner: string; // This should be the User ID
-  ownerId: string; // New field for owner ID
-  notes?: string;
-  attachments: Attachment[];
-  projectId: string; // This is already present
-  accountId?: string; // New field for account ID
 }
 
 export interface Event {

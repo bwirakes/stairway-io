@@ -7,12 +7,10 @@ import AddTaskButton from '@/components/AddTaskButton';
 import AddTaskModal from '@/components/modals/AddTaskModal';
 import { HorizontalTimeline } from '@/components/HorizontalTimeline';
 import { ProjectCard } from '@/components/ProjectCard';
-import { Task, Project } from '@/types';
-import { format } from 'date-fns';
-
+import { Task, ProjectWithTasks, User } from '@/types'; // Ensure correct import
 
 const TasksPage: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectWithTasks[]>([]); // Correct state type
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -21,19 +19,35 @@ const TasksPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [projectsRes, tasksRes] = await Promise.all([
+        const [projectsRes, tasksRes, usersRes] = await Promise.all([
           fetch('/api/projects'),
-          fetch('/api/tasks')
+          fetch('/api/tasks'),
+          fetch('/api/users')
         ]);
 
         if (!projectsRes.ok || !tasksRes.ok) {
           throw new Error(`Error: ${!projectsRes.ok ? projectsRes.status : tasksRes.status}`);
         }
 
-        const projectsData: Project[] = await projectsRes.json();
+        const projectsData: ProjectWithTasks[] = await projectsRes.json(); // Correct type
         const tasksData: Task[] = await tasksRes.json();
+        const userData: User[] = await usersRes.json();
 
-        setProjects(projectsData);
+        // Ensure 'notes' is set to null if undefined
+        const projectsWithValidatedTasks = projectsData.map(project => ({
+          id: project.id,
+          name: project.name,
+          startDate: project.startDate,
+          deadline: project.deadline,
+          status: project.status,
+          projectCategory: project.projectCategory,
+          description: project.description || '',
+          owner: userData.find(user => user.id === project.ownerId),
+          tasks: [],
+          ownerId: project.ownerId,
+        }));
+
+        setProjects(projectsWithValidatedTasks);
         setTaskList(tasksData);
         setIsLoading(false);
       } catch (err: unknown) {
@@ -59,14 +73,7 @@ const TasksPage: React.FC = () => {
     setTaskList([newTask, ...taskList]);
   };
 
-  const getUpcomingTasks = (projectId: string, count: number = 5) => {
-    return taskList
-      .filter(task => task.projectId === projectId) // Fixed comparison
-      .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
-      .slice(0, count);
-  };
-
-  const handleProjectClick = (project: Project) => {
+  const handleProjectClick = (project: ProjectWithTasks) => { // Correct type
     // Handle project click, e.g., navigate to project details page
     console.log('Project clicked:', project);
   };
@@ -94,24 +101,13 @@ const TasksPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => {
-            const projectTasks = getUpcomingTasks(project.id, 7); // Adjust count as needed
-            return (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                tasks={projectTasks}
-                icon={`/icons/${project.projectCategory.toLowerCase()}.svg`}
-                dueDate={format(new Date(project.deadline), 'MMM d, yyyy')}
-                category={project.projectCategory}
-                owner={{
-                  name: `${project.owner.firstName} ${project.owner.lastName}`,
-                  avatar: '/placeholder-avatar.png' // Placeholder avatar
-                }}
-                onClick={() => handleProjectClick(project)}
-              />
-            );
-          })}
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onClick={() => handleProjectClick(project)}
+            />
+          ))}
         </div>
 
         <AddTaskModal

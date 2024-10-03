@@ -1,19 +1,15 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Task, Project } from "@prisma/client"
 import { Status } from "@prisma/client"
 import { MoreHorizontal, MessageSquare, Paperclip } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { TaskDetails } from '@/components/TaskDetailsDrawer'
 import Link from 'next/link'
-
-interface ProjectWithTasks extends Project {
-  tasks: Task[]
-}
+import { Task, ProjectWithTasks } from '@/types'; // Import the interface
 
 interface ProjectCardProps {
   project: ProjectWithTasks
@@ -24,22 +20,7 @@ export function ProjectCard({
   project,
   onClick
 }: ProjectCardProps) {
-  const [isMobile, setIsMobile] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-
-    checkIsMobile()
-    window.addEventListener('resize', checkIsMobile)
-
-    return () => {
-      window.removeEventListener('resize', checkIsMobile)
-    }
-  }, [])
-
   const totalTasks = project.tasks.length
   const inProgressTasks = project.tasks.filter(task => task.status === Status.IN_PROGRESS).length
   const completedTasks = project.tasks.filter(task => task.status === Status.COMPLETE).length
@@ -123,25 +104,21 @@ export function ProjectCard({
               <span className="text-gray-500">Due date</span>
               <span className="font-medium">{new Date(project.deadline).toLocaleDateString()}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500">Assignee</span>
-              <div className="flex items-center space-x-2">
-                <div className={`w-4 h-4 rounded-full bg-gradient-to-br ${getGradientColor()}`}></div>
-                <span className="font-medium">{project.owner.firstName} {project.owner.lastName}</span>
-              </div>
+            <div className="flex items-center">
+              <span className="text-gray-500 mr-2">Assignee</span>
+              <div className={`w-4 h-4 rounded-full bg-gradient-to-br ${getGradientColor()} mr-2`}></div>
+              <span className="font-medium">{project.owner?.firstName} {project.owner?.lastName}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500">Last edited</span>
-              <div className="flex items-center space-x-2">
-                <div className={`w-4 h-4 rounded-full bg-gradient-to-br ${getGradientColor()}`}></div>
-                <span className="font-medium">James Collins</span>
-              </div>
+            <div className="flex items-center">
+              <span className="text-gray-500 mr-2">Last edited</span>
+              <div className={`w-4 h-4 rounded-full bg-gradient-to-br ${getGradientColor()} mr-2`}></div>
+              <span className="font-medium">James Collins</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500">Team</span>
+            <div className="flex items-center">
+              <span className="text-gray-500 mr-2">Team</span>
               <div className="flex -space-x-1">
                 {[...Array(3)].map((_, index) => (
-                  <div key={index} className={`w-5 h-5 rounded-full bg-gradient-to-br ${getGradientColor()} border-2 border-white`}></div>
+                  <div key={index} className={`w-5 h-5 rounded-full bg-gradient-to-br ${getGradientColor()} border-2 border-white`} title={`Team Member ${index + 1}`}></div>
                 ))}
                 <div className="w-5 h-5 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium">
                   +2

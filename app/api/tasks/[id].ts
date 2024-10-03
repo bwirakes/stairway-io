@@ -9,8 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { id } = req.query;
 
   if (typeof id !== 'string') {
-    res.status(400).json({ error: 'Invalid task ID' });
-    return;
+    return res.status(400).json({ error: 'Invalid task ID' });
   }
 
   if (req.method === 'GET') {
@@ -18,8 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const task = await prisma.task.findUnique({
         where: { id },
         include: {
-          categories: true,
           attachments: true,
+          project: true,
+          owner: true,
         },
       });
 
@@ -31,19 +31,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           deadline: task.deadline.toISOString(),
           status: task.status,
           priority: task.priority,
-          project: task.project,
-          owner: task.owner,
-          notes: task.notes || '',
-          categories: task.categories.map((cat) => ({
-            id: cat.id,
-            name: cat.name,
-          })),
+          project: {
+            id: task.project.id,
+            name: task.project.name,
+            startDate: task.project.startDate.toISOString(),
+            deadline: task.project.deadline.toISOString(),
+            status: task.project.status,
+            projectCategory: task.project.projectCategory,
+            description: task.project.description,
+            ownerId: task.project.ownerId,
+            owner: {
+              id: task.owner.id,
+              firstName: task.owner.firstName,
+              lastName: task.owner.lastName,
+            }, // Exclude nested tasks
+          },
+          owner: task.ownerId, // owner is user ID
+          ownerId: task.ownerId,
+          notes: task.notes ?? '', // Ensure notes is null if undefined
           attachments: task.attachments.map((att) => ({
             id: att.id,
             url: att.url,
             taskId: att.taskId,
           })),
+          projectId: task.projectId,
         };
+
         res.status(200).json(formattedTask);
       } else {
         res.status(404).json({ error: 'Task not found' });
@@ -54,31 +67,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else if (req.method === 'PUT') {
     try {
-      const { title, deadline, status, priority, project, owner, notes, categories } = req.body;
+      const { title, deadline, status, priority, ownerId, notes, projectId, accountId } = req.body;
 
       const updatedTask = await prisma.task.update({
         where: { id },
         data: {
-          title: title ?? undefined,
+          title,
           deadline: deadline ? new Date(deadline) : undefined,
-          status: status ?? undefined,
-          priority: priority ?? undefined,
-          project: project ?? undefined,
-          owner: owner ?? undefined,
-          notes: notes ?? undefined,
-          categories: {
-            set: [], // Remove existing categories
-            connectOrCreate: categories
-              ? (categories as string[]).map((name: string) => ({
-                  where: { name },
-                  create: { name },
-                }))
-              : [],
-          },
+          status,
+          priority,
+          ownerId,
+          notes: notes ?? null, // Ensure notes is null if undefined
+          projectId,
+          accountId,
         },
         include: {
-          categories: true,
           attachments: true,
+          project: true,
+          owner: true,
         },
       });
 
@@ -89,37 +95,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         deadline: updatedTask.deadline.toISOString(),
         status: updatedTask.status,
         priority: updatedTask.priority,
-        project: updatedTask.project,
-        owner: updatedTask.owner,
-        notes: updatedTask.notes || '',
-        categories: updatedTask.categories.map((cat) => ({
-          id: cat.id,
-          name: cat.name,
-        })),
+        project: {
+          id: updatedTask.project.id,
+          name: updatedTask.project.name,
+          startDate: updatedTask.project.startDate.toISOString(),
+          deadline: updatedTask.project.deadline.toISOString(),
+          status: updatedTask.project.status,
+          projectCategory: updatedTask.project.projectCategory,
+          description: updatedTask.project.description,
+          ownerId: updatedTask.project.ownerId,
+          owner: {
+            id: updatedTask.owner.id,
+            firstName: updatedTask.owner.firstName,
+            lastName: updatedTask.owner.lastName,
+          }, // Exclude nested tasks
+        },
+        owner: updatedTask.ownerId, // owner is user ID
+        ownerId: updatedTask.ownerId,
+        notes: updatedTask.notes ?? '', // Ensure notes is null if undefined
         attachments: updatedTask.attachments.map((att) => ({
           id: att.id,
           url: att.url,
-          taskId: att.taskId, // Add taskId property
+          taskId: att.taskId,
         })),
+        projectId: updatedTask.projectId,
       };
-
       res.status(200).json(formattedTask);
     } catch (error) {
       console.error('Error updating task:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  } else if (req.method === 'DELETE') {
-    try {
-      await prisma.task.delete({
-        where: { id },
-      });
-      res.status(204).end();
-    } catch (error) {
-      console.error('Error deleting task:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
   } else {
-    res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
+    res.setHeader('Allow', ['GET', 'PUT']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

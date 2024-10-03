@@ -17,7 +17,6 @@ import {
   FiHexagon,
   FiTruck,
   FiImage,
-  FiDatabase,
   FiHeart,
   FiUsers,
   FiMap,
@@ -29,7 +28,7 @@ import { AssetInformation, AssetCategory } from '@prisma/client';
 
 const liabilitiesData = [
   {
-    id: '1',
+    id: 1,
     logo: <FiHome className="w-5 h-5 text-red-500" />,
     type: 'Mortgage',
     value: '$150,000',
@@ -40,7 +39,7 @@ const liabilitiesData = [
     isAsset: false,
   },
   {
-    id: '2',
+    id: 2,
     logo: <FiCreditCard className="w-5 h-5 text-purple-500" />,
     type: 'Credit Card Loans',
     value: '$20,000',
@@ -51,7 +50,7 @@ const liabilitiesData = [
     isAsset: false,
   },
   {
-    id: '3',
+    id: 3,
     logo: <FiTrendingUp className="w-5 h-5 text-blue-500" />,
     type: 'Auto Loans',
     value: '$30,000',
@@ -62,7 +61,7 @@ const liabilitiesData = [
     isAsset: false,
   },
   {
-    id: '4',
+    id: 4,
     logo: <FiDollarSign className="w-5 h-5 text-green-500" />,
     type: 'Student Debt',
     value: '$25,000',
@@ -73,7 +72,7 @@ const liabilitiesData = [
     isAsset: false,
   },
   {
-    id: '5',
+    id: 5,
     logo: <FiMoreHorizontal className="w-5 h-5 text-gray-500" />,
     type: 'Others',
     value: '$10,000',
@@ -173,7 +172,7 @@ export default function EstateInventoryPage() {
     });
 
     return Object.entries(categoryMap).map(([category, { sum, assets }]) => ({
-      id: category,
+      id: parseInt(category, 10) || category, // Convert to number if possible
       logo: getCategoryIcon(category as AssetCategory),
       type: assetCategoryMap[category as AssetCategory] || category,
       value: `$${sum.toLocaleString()}`,
@@ -250,7 +249,13 @@ export default function EstateInventoryPage() {
         {/* Assets and Liabilities Tables */}
         <div className="grid w-full grid-cols-1 gap-6 max-w-7xl sm:grid-cols-2">
           {/* Assets Table */}
-          <AccountTable title="Assets" data={assetsByCategory} />
+          <AccountTable 
+            title="Assets" 
+            data={assetsByCategory.map(asset => ({
+              ...asset,
+              id: Number(asset.id) // Ensure id is a number
+            }))} 
+          />
 
           {/* Liabilities Table */}
           <AccountTable title="Liabilities" data={liabilitiesData} />

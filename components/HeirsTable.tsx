@@ -1,8 +1,13 @@
 import { Heir } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Search, ChevronDown } from 'lucide-react'
+import { Search, ChevronDown, MoreHorizontal } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface HeirsTableProps {
   heirs: Heir[];
@@ -35,97 +40,74 @@ export function HeirsTable({ heirs, searchTerm, onSearchChange, onEdit }: HeirsT
       {/* End Search */}
 
       {/* Table */}
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
-        <thead className="bg-gray-50 dark:bg-neutral-800">
-          <tr>
-            <th scope="col" className="ps-6 py-3 text-start">
-              <span className="sr-only">Checkbox</span>
-            </th>
-            <th scope="col" className="ps-6 lg:ps-3 xl:ps-0 pe-6 py-3 text-start">
-              <div className="flex items-center gap-x-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
-                  Name
-                </span>
-              </div>
-            </th>
-            <th scope="col" className="px-6 py-3 text-start">
-              <div className="flex items-center gap-x-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
-                  Relation
-                </span>
-              </div>
-            </th>
-            <th scope="col" className="px-6 py-3 text-start">
-              <div className="flex items-center gap-x-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
-                  Phone
-                </span>
-              </div>
-            </th>
-            <th scope="col" className="px-6 py-3 text-start">
-              <div className="flex items-center gap-x-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
-                  Address
-                </span>
-              </div>
-            </th>
-            <th scope="col" className="px-6 py-3 text-start">
-              <div className="flex items-center gap-x-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
-                  Target Percentage
-                </span>
-              </div>
-            </th>
-            <th scope="col" className="px-6 py-3 text-end"></th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-gray-200 dark:divide-neutral-700">
-          {heirs.map((heir) => (
-            <tr key={heir.id}>
-              <td className="size-px whitespace-nowrap">
-              </td>
-              <td className="size-px whitespace-nowrap">
-                <div className="ps-6 lg:ps-3 xl:ps-0 pe-6 py-3">
-                  <div className="flex items-center gap-x-3">
-                    <div className="grow">
-                      <span className="block text-sm font-semibold text-gray-800 dark:text-neutral-200">{`${heir.first_name} ${heir.last_name}`}</span>
-                      <span className="block text-sm text-gray-500 dark:text-neutral-500">{heir.email}</span>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+          <thead className="bg-gray-50 dark:bg-neutral-800">
+            <tr>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                Relation
+              </th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                Phone
+              </th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                Address
+              </th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                Target %
+              </th>
+              <th scope="col" className="relative px-6 py-3">
+                <span className="sr-only">Edit</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200 dark:bg-neutral-900 dark:divide-neutral-700">
+            {heirs.map((heir) => (
+              <tr key={heir.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-neutral-100">{`${heir.first_name} ${heir.last_name}`}</div>
+                      <div className="text-sm text-gray-500 dark:text-neutral-400">{heir.email}</div>
                     </div>
                   </div>
-                </div>
-              </td>
-              <td className="size-px whitespace-nowrap">
-                <div className="px-6 py-3">
-                  <span className="text-sm text-gray-500 dark:text-neutral-500">{heir.relation || 'N/A'}</span>
-                </div>
-              </td>
-              <td className="size-px whitespace-nowrap">
-                <div className="px-6 py-3">
-                  <span className="text-sm text-gray-500 dark:text-neutral-500">{heir.phone}</span>
-                </div>
-              </td>
-              <td className="size-px whitespace-nowrap">
-                <div className="px-6 py-3">
-                  <span className="text-sm text-gray-500 dark:text-neutral-500">{`${heir.street_address_1}, ${heir.city}, ${heir.state} ${heir.zipcode}`}</span>
-                </div>
-              </td>
-              <td className="size-px whitespace-nowrap">
-                <div className="px-6 py-3">
-                  <span className="text-sm text-gray-500 dark:text-neutral-500">{`${heir.target_percentage}%`}</span>
-                </div>
-              </td>
-              <td className="size-px whitespace-nowrap">
-                <div className="px-6 py-1.5">
-                  <Button variant="link" onClick={() => onEdit(heir)}>
-                    Edit
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                  <div className="text-sm text-gray-900 dark:text-neutral-100">{heir.relation || 'N/A'}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                  <div className="text-sm text-gray-900 dark:text-neutral-100">{heir.phone}</div>
+                </td>
+                <td className="px-6 py-4 hidden lg:table-cell">
+                  <div className="text-sm text-gray-900 dark:text-neutral-100">{`${heir.street_address_1}, ${heir.city}, ${heir.state} ${heir.zipcode}`}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                  <div className="text-sm text-gray-900 dark:text-neutral-100">{`${heir.target_percentage}%`}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onEdit(heir)}>
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {/* End Table */}
 
       {/* Footer */}

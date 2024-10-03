@@ -57,6 +57,7 @@ model Transaction {
   name         String
   category     String[]
   pending      Boolean
+  recurring    Boolean
 }
 
 model Project {
@@ -153,8 +154,8 @@ model EstateInformation {
 model Distribution {
   id                    Int                @id @default(autoincrement())
   distribution_share_id Int?
-  heir                  Heir               @relation(fields: [heir_id], references: [id])
-  heir_id               Int
+  heir                  Heir[]
+  heirs_id              Int
   account               String?
   share_of_distribution Float
   distribution_type     String

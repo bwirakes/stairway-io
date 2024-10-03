@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, Status, Priority } from '@prisma/client';
-import { Task, Attachment } from '@/types';
+import { Task } from '@/types';
 
 const prisma = new PrismaClient();
 
@@ -13,10 +13,16 @@ export async function GET() {
             id: true,
             name: true,
             projectCategory: true,
+            startDate: true,
+            deadline: true,
+            status: true,
+            description: true,
+            ownerId: true,
           },
         }, // Include project details
         owner: {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
           },
@@ -37,14 +43,30 @@ export async function GET() {
         deadline: task.deadline.toISOString(),
         status: task.status,
         priority: task.priority,
-        project: task.project.name,
-        owner: `${task.owner.firstName} ${task.owner.lastName}`,
-        notes: task.notes || '',
-        attachments: task.attachments.map((att: Attachment) => ({
+        project: {
+          id: task.project.id,
+          name: task.project.name,
+          startDate: task.project.startDate.toISOString(),
+          deadline: task.project.deadline.toISOString(),
+          status: task.project.status,
+          projectCategory: task.project.projectCategory,
+          description: task.project.description,
+          ownerId: task.project.ownerId,
+          owner: {
+            id: task.owner.id,
+            firstName: task.owner.firstName,
+            lastName: task.owner.lastName,
+          }, // Exclude nested tasks
+        },
+        owner: task.ownerId, // owner is user ID
+        ownerId: task.ownerId,
+        notes: task.notes ?? '', // Ensure notes is null if undefined
+        attachments: task.attachments.map((att) => ({
           id: att.id,
           url: att.url,
           taskId: att.taskId,
         })),
+        projectId: task.projectId,
       }));
 
     return NextResponse.json(formattedTasks, { status: 200 });
@@ -133,15 +155,28 @@ export async function POST(request: NextRequest) {
       project: {
         id: task.project.id,
         name: task.project.name,
+        startDate: task.project.startDate.toISOString(),
+        deadline: task.project.deadline.toISOString(),
+        status: task.project.status,
         projectCategory: task.project.projectCategory,
+        description: task.project.description,
+        ownerId: task.project.ownerId,
+        owner: {
+          id: task.ownerId,
+          firstName: task.owner.firstName,
+          lastName: task.owner.lastName,
+        },
+        tasks: [], // Exclude nested tasks
       },
-      owner: `${task.owner.firstName} ${task.owner.lastName}`,
-      notes: task.notes || '',
-      attachments: task.attachments.map((att: Attachment) => ({
+      owner: task.ownerId, // owner is user ID
+      ownerId: task.ownerId,
+      notes: task.notes ?? '', // Ensure notes is null if undefined
+      attachments: task.attachments.map((att) => ({
         id: att.id,
         url: att.url,
         taskId: att.taskId,
       })),
+      projectId: task.projectId,
     };
 
     return NextResponse.json(formattedTask, { status: 201 });

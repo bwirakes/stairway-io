@@ -42,11 +42,8 @@ export async function GET() {
         firstName: project.owner.firstName,
         lastName: project.owner.lastName,
       },
-      tasks: project.tasks.map((task) => ({
-        id: task.id,
-        title: task.title,
-        status: task.status,
-      })),
+      tasks: [],
+      ownerId: project.ownerId,
     }));
 
     return NextResponse.json(formattedProjects, { status: 200 });
@@ -96,6 +93,7 @@ export async function POST(request: Request) {
         lastName: newProject.owner.lastName,
       },
       tasks: [],
+      ownerId: newProject.ownerId,
     };
 
     return NextResponse.json(formattedProject, { status: 201 });

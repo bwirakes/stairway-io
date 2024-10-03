@@ -5,7 +5,7 @@ import * as z from 'zod'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormItem, FormLabel, FormField, FormMessage } from "@/components/ui/form"
 import { toast } from "hooks/use-toast"
 import { Heir } from "@/types"
 
@@ -53,7 +53,7 @@ export function AddHeirModal({ onAddHeir }: AddHeirModalProps) {
     },
   })
 
-  const onSubmit = async (data: HeirFormData) => {
+  const onSubmit = async (data: z.infer<typeof heirSchema>) => {
     try {
       const response = await fetch('/api/heirs', {
         method: 'POST',
@@ -73,6 +73,7 @@ export function AddHeirModal({ onAddHeir }: AddHeirModalProps) {
         throw new Error('Failed to add new heir')
       }
     } catch (error) {
+      console.error("Error adding heir:", error);
       toast({
         title: "Error",
         description: "Failed to add new heir",

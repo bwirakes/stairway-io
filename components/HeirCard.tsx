@@ -20,15 +20,6 @@ interface Heir {
     created_at: string;
     updated_at: string;
   }
-  
-  async function getHeirs(): Promise<Heir[]> {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/heirs`, { cache: 'no-store' });
-    if (!res.ok) {
-      throw new Error('Failed to fetch heirs');
-    }
-    return res.json();
-  }
 
   export function HeirCard({ heir }: { heir: Heir }) {
 

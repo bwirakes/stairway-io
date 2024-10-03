@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CalendarIcon, ClockIcon, TagIcon, UserIcon, FileIcon, PaperclipIcon, XIcon } from 'lucide-react'
+import { CalendarIcon, ClockIcon, TagIcon, UserIcon, FileIcon, XIcon } from 'lucide-react'
 import Spinner  from "@/components/ui/spinner"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
@@ -223,7 +223,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
         <div>
           <h3 className="text-lg font-medium mb-2">Attachments</h3>
           <ul className="space-y-2">
-            {task.attachments.map((attachment) => (
+            {task.attachments?.map((attachment) => (
               <li key={attachment.id} className="flex items-center space-x-2">
                 <FileIcon className="w-4 h-4 text-gray-500" aria-hidden="true" />
               </li>
