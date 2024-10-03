@@ -38,6 +38,8 @@ export interface Heir {
   first_name: string;
   middle_initial?: string;
   last_name: string;
+  email: string;
+  phone: string;
   ssn: string;
   suffix?: string;
   street_address_1: string;

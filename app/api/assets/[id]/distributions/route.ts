@@ -76,17 +76,9 @@ export async function GET(
       updated_at: dist.updated_at.toISOString(),
       heir: {
         ...dist.heir,
-        created_at: dist.heir.created_at.toISOString(),
-        updated_at: dist.heir.updated_at.toISOString(),
-        middle_initial: dist.heir.middle_initial || undefined,
-        suffix: dist.heir.suffix || undefined,
-        street_address_2: dist.heir.street_address_2 || undefined,
-      },
-      assets: dist.assets.map(asset => ({
-        ...asset,
-        created_at: asset.created_at.toISOString(),
-        updated_at: asset.updated_at.toISOString(),
-      })),
+        email: dist.heir.email || null,
+        phone: dist.heir.phone || null
+      }
     }));
     
     return NextResponse.json(formattedDistributions, { status: 200 });

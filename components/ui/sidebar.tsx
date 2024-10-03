@@ -23,7 +23,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
   ]
 
   const handleItemClick = () => {
-    if (window.innerWidth < 768) {
+    if (window.innerWidth < 1080) {
       onClose()
     }
   }

@@ -88,7 +88,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
 
   if (loading) {
     return (
-      <div className="fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform translate-x-0 bg-white w-96 dark:bg-gray-800 flex items-center justify-center">
+      <div className="fixed top-0 right-0 z-40 h-screen p-4 transition-transform translate-x-0 bg-white w-96 dark:bg-gray-800 flex items-center justify-center">
         <Spinner className="w-8 h-8" />
       </div>
     )
@@ -96,7 +96,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
 
   if (error) {
     return (
-      <div className="fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform translate-x-0 bg-white w-96 dark:bg-gray-800">
+      <div className="fixed top-0 right-0 z-40 h-screen p-4 transition-transform translate-x-0 bg-white w-96 dark:bg-gray-800">
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
@@ -110,7 +110,7 @@ export function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
   }
 
   return (
-    <div id="task-details-drawer" className="fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform translate-x-0 bg-white w-96 dark:bg-gray-800" tabIndex={-1} aria-labelledby="task-details-title">
+    <div id="task-details-drawer" className="fixed top-0 right-0 z-40 h-screen p-4 transition-transform translate-x-0 bg-white w-96 dark:bg-gray-800" tabIndex={-1} aria-labelledby="task-details-title">
       <h5 id="task-details-title" className="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400">
         Task Details
       </h5>

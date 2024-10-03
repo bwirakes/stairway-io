@@ -170,7 +170,9 @@ model Heir {
   last_name         String
   ssn               String
   suffix            String?
-  street_address_1  String
+  email             String         @default("")
+  phone             String         @default("")
+  street_address_1  String         
   street_address_2  String?
   city              String
   state             String
