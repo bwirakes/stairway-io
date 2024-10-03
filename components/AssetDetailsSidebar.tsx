@@ -27,7 +27,7 @@ export default function AssetDetailsSidebar({ assetId, isOpen, onClose }: AssetD
   return (
     <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] lg:w-[640px] border-l shadow-lg z-50 transition-transform duration-300 ease-in-out">
       <Card className="h-full rounded-none">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sticky top-0 z-10">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sticky top-0 bg-background z-10">
           <CardTitle className="text-lg font-semibold">Asset Details</CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -71,7 +71,6 @@ export default function AssetDetailsSidebar({ assetId, isOpen, onClose }: AssetD
             
             <Section title="Other Information">
               <InfoItem label="Notes" value={asset.notes || 'N/A'} />
-              <InfoItem label="Attachments" value={`${asset.attachments.length} file(s)`} />
               <InfoItem label="Task ID" value={asset.task_id ? asset.task_id.toString() : 'N/A'} />
               <InfoItem label="Account Plan" value={asset.account_plan} />
             </Section>

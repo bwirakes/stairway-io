@@ -10,8 +10,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { id } = params;
 
   try {
-    const body = await request.json();
-    const { url } = body;
+    const { url } = await request.json();
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'URL is required and must be a string.' }, { status: 400 });
@@ -21,6 +20,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       data: {
         url,
         task: { connect: { id } },
+        asset_information: { connect: { id: 0 } },
       },
     });
 

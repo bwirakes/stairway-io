@@ -14,7 +14,6 @@ export async function GET() {
       created_at: heir.created_at.toISOString(),
       updated_at: heir.updated_at.toISOString(),
       middle_initial: heir.middle_initial ?? undefined,
-      suffix: heir.suffix ?? undefined,
       street_address_2: heir.street_address_2 ?? undefined,
     }));
     return NextResponse.json(formattedHeirs);
@@ -41,7 +40,6 @@ export async function POST(request: Request) {
       created_at: newHeir.created_at.toISOString(),
       updated_at: newHeir.updated_at.toISOString(),
       middle_initial: newHeir.middle_initial ?? undefined,
-      suffix: newHeir.suffix ?? undefined,
       street_address_2: newHeir.street_address_2 ?? undefined,
     };
     return NextResponse.json(formattedHeir, { status: 201 });

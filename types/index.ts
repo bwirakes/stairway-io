@@ -1,4 +1,4 @@
-import { Status, Priority, ProjectCategory, ProjectStatus } from '@prisma/client';
+import { Status, Priority, ProjectCategory, ProjectStatus, AssetCategory, AccountStatus, AccountPlan } from '@prisma/client';
 
 export interface Attachment {
   id: string;
@@ -48,13 +48,15 @@ export interface ProjectWithTasks extends Project {
 export interface Distribution {
   id: number;
   distribution_share_id?: number | null;
-  heir_id: number;
+  heirs_id: number;
   account?: string | null;
+  assets: AssetInformation[];
+  asset_information_id: number;
   share_of_distribution: number;
   distribution_type: string;
   created_at: string; // ISO string
   updated_at: string; // ISO string
-  heir: Heir;
+  heir: Heir[];
 }
 
 export interface Heir {
@@ -80,4 +82,33 @@ export interface Event {
   title: string;
   date: string; // e.g., '2024-10-05'
   description: string;
+}
+
+export interface AssetInformation {
+  id: number;
+  asset_name: string;
+  account_id?: string | null;
+  account_number?: string | null;
+  financial_institution?: string | null;
+  account_owner?: string | null;
+  current_value: number;
+  cost_basis: number;
+  acquisition_date: string; // Changed to string to match Distribution interface
+  attachments: Attachment[];
+  notes?: string;
+  asset_category: AssetCategory;
+  distribution_id?: number;
+  distribution?: Distribution[];
+  is_probate: boolean;
+  sold: boolean;
+  task_id?: number;
+  asset_location?: string;
+  user_id: string;
+  asset_contact_number?: string;
+  asset_contact_name?: string;
+  asset_contact_email?: string;
+  created_at: string; // Changed to string to match Distribution interface
+  updated_at: string; // Changed to string to match Distribution interface
+  account_status: AccountStatus;
+  account_plan: AccountPlan;
 }

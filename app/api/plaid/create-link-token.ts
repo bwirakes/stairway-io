@@ -1,4 +1,5 @@
 // pages/api/plaid/create-link-token.ts
+/*
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { plaidClient } from '@/lib/plaidclient';
 import { Products, CountryCode } from 'plaid';
@@ -62,3 +63,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 }
+
+*/

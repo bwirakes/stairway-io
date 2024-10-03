@@ -31,6 +31,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           id: task.project.id,
           name: task.project.name,
           projectCategory: task.project.projectCategory,
+          startDate: task.project.startDate.toISOString(),
+          deadline: task.project.deadline.toISOString(),
+          status: task.project.status,
+          description: task.project.description,
+          ownerId: task.project.ownerId,
         },
         owner: task.owner.id,
         ownerId: task.ownerId,
@@ -41,7 +46,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           taskId: att.taskId,
         })),
         projectId: task.projectId,
-        accountId: task.accountId,
       };
       return NextResponse.json(formattedTask, { status: 200 });
     } else {
@@ -90,6 +94,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         id: updatedTask.projectId,
         name: updatedTask.project.name,
         projectCategory: updatedTask.project.projectCategory,
+        startDate: updatedTask.project.startDate.toISOString(),
+        deadline: updatedTask.project.deadline.toISOString(),
+        status: updatedTask.project.status,
+        description: updatedTask.project.description,
+        ownerId: updatedTask.project.ownerId,
       },
       owner: updatedTask.owner.id,
       ownerId: updatedTask.ownerId,
@@ -100,7 +109,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         taskId: att.taskId,
       })),
       projectId: updatedTask.projectId,
-      accountId: updatedTask.accountId,
     };
 
     return NextResponse.json(formattedTask, { status: 200 });

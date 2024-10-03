@@ -99,10 +99,10 @@ model AssetInformation {
   current_value         Float
   cost_basis            Float
   acquisition_date      DateTime
-  attachments           String[]
+  attachments           Attachment[]
   notes                 String?
   asset_category        AssetCategory
-  distribution          Distribution? @relation(fields: [distribution_id], references: [id])
+  distribution          Distribution[]
   distribution_id       Int?
   is_probate            Boolean       @default(false)
   sold                  Boolean       @default(false)
@@ -160,6 +160,7 @@ model Distribution {
   share_of_distribution Float
   distribution_type     String
   assets                AssetInformation[]
+  asset_information_id  Int
   created_at            DateTime           @default(now())
   updated_at            DateTime           @updatedAt
 }
@@ -191,6 +192,8 @@ model Attachment {
   url    String
   task   Task   @relation(fields: [taskId], references: [id])
   taskId String
+  asset_information_id Int
+  asset_information AssetInformation @relation(fields: [asset_information_id], references: [id])
 }
 
 enum Status {
