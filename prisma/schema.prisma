@@ -100,6 +100,7 @@ model AssetInformation {
   cost_basis            Float
   acquisition_date      DateTime
   attachments           Attachment[]
+  attachment_id         String?
   notes                 String?
   asset_category        AssetCategory
   distribution          Distribution[]
@@ -267,8 +268,8 @@ enum ProjectStatus {
 
 enum ProjectCategory {
   REAL_ESTATE   @map("Real Estate")
-  LEGAL
-  FINANCES
-  DISTRIBUTIONS
-  ONBOARDING
+  LEGAL          @map("Legal")
+  FINANCES       @map("Finances")
+  DISTRIBUTIONS  @map("Distributions")
+  ONBOARDING     @map("Onboarding")
 }

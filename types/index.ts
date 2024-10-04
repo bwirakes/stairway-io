@@ -95,6 +95,7 @@ export interface AssetInformation {
   cost_basis: number;
   acquisition_date: string; // Changed to string to match Distribution interface
   attachments: Attachment[];
+  attachment_id?: string | null;
   notes?: string;
   asset_category: AssetCategory;
   distribution_id?: number;
